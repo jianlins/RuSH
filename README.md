@@ -36,7 +36,7 @@ available. The type system in this AE is dynamically coded, so that you can dire
 - If you use native UIMA, the AE descripter can be found [here](https://github.com/jianlins/RuSH/blob/master/desc/RuSH_aeDescriptor.xml).
 - If you use UIMAFit, please refer to the example [TestRuSH_AE.java](https://github.com/jianlins/RuSH/blob/master/src/test/java/edu/utah/bmi/RuSH/TestRuSH_AE.java).
 
-Example codes can be found under src/test directory. When adapting RuSH to your local corpus, it is also an efficient way to make 
+Example codes can be found under [src/test](https://github.com/jianlins/RuSH/tree/master/src/test/java/edu/utah/bmi) directory. When adapting RuSH to your local corpus, it is also an efficient way to make 
 test cases while modifying RuSH rules. It will help you easily keep track of the errors that your new rules may introduce.
 
 
