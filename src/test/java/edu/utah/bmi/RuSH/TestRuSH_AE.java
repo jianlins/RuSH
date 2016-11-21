@@ -53,10 +53,12 @@ public class TestRuSH_AE {
     @Test
     public void test() throws AnalysisEngineProcessException {
         jCas.reset();
-        jCas.setDocumentText("The patient was admitted on 03/26/08\n and was started on IV antibiotics elevation, was also" +
-                " counseled to minimizing the cigarette smoking. The patient had edema\n\n\n of his bilateral lower extremities. " +
-                "The hospital consult was also obtained to address edema issue question was related to his liver hepatitis C." +
-                " Hospital consult was obtained. This included an ultrasound of his abdomen, which showed just mild cirrhosis. ");
+        jCas.setDocumentText("The patient was admitted on 03/26/08\n and was started on IV antibiotics elevation" +
+                            ", was also counseled to minimizing the cigarette smoking. The patient had edema\n\n" +
+                            "\n of his bilateral lower extremities. The hospital consult was also obtained to " +
+                            "address edema issue question was related to his liver hepatitis C. Hospital consult" +
+                            " was obtained. This included an ultrasound of his abdomen, which showed just mild " +
+                            "cirrhosis. ");
         analysisEngine.process(jCas);
         testAnalysisEngine.process(jCas);
     }
