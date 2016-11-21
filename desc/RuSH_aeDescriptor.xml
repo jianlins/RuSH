@@ -5,7 +5,7 @@
     <annotatorImplementationName>edu.utah.bmi.rush.uima.RuSH_AE
     </annotatorImplementationName>
     <analysisEngineMetaData>
-        <name>RuSH_AE_Descriptor</name>
+        <name>RuSH Analyses Engine</name>
         <description/>
         <version>1.0</version>
         <vendor/>
@@ -23,10 +23,28 @@
                 <mandatory>true</mandatory>
             </configurationParameter>
             <configurationParameter>
+                <name>AlterSentenceTypeName</name>
+                <type>String</type>
+                <multiValued>false</multiValued>
+                <mandatory>false</mandatory>
+            </configurationParameter>
+            <configurationParameter>
                 <name>TokenTypeName</name>
                 <type>String</type>
                 <multiValued>false</multiValued>
                 <mandatory>true</mandatory>
+            </configurationParameter>
+            <configurationParameter>
+                <name>IncludePunctuation</name>
+                <type>Boolean</type>
+                <multiValued>false</multiValued>
+                <mandatory>false</mandatory>
+            </configurationParameter>
+            <configurationParameter>
+                <name>AutoFixGaps</name>
+                <type>Boolean</type>
+                <multiValued>false</multiValued>
+                <mandatory>false</mandatory>
             </configurationParameter>
         </configurationParameters>
         <configurationParameterSettings>
@@ -34,27 +52,31 @@
                 <name>RuleFile</name>
                 <value>
                     <string>
-                        conf/crule1.csv
+                        conf/rush_rules.csv
                     </string>
                 </value>
             </nameValuePair>
             <nameValuePair>
                 <name>SentenceTypeName</name>
                 <value>
-                    <string>poet2.type.system.Sentence</string>
+                    <string>edu.utah.bmi.type.system.Sentence</string>
+                </value>
+            </nameValuePair>
+            <nameValuePair>
+                <name>AlterSentenceTypeName</name>
+                <value>
+                    <string>edu.utah.bmi.type.system.SentenceOdd</string>
                 </value>
             </nameValuePair>
             <nameValuePair>
                 <name>TokenTypeName</name>
                 <value>
-                    <string>poet2.type.system.Token</string>
+                    <string>edu.utah.bmi.type.system.Token</string>
                 </value>
             </nameValuePair>
         </configurationParameterSettings>
         <typeSystemDescription>
-            <imports>
-                <import location="All_Types.xml"/>
-            </imports>
+            <imports>All_Types.xml</imports>
         </typeSystemDescription>
         <typePriorities/>
         <fsIndexCollection/>
