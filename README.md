@@ -1,4 +1,4 @@
-# RuSH (Rule-based Segmentation using Hashing)
+# RuSH (Rule-based sentence Segmenter using Hashing)
 
 RuSH is an efficient, reliable, and easy adaptable rule-based sentence segmentation
 solution that can be used in an NLP pipeline either in-line or to pre-annotate clinical texts. It leverages a nested
