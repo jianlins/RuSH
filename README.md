@@ -1,6 +1,6 @@
-# RuSH
+# RuSH (Rule-based Segmentation using Hashing)
 
-RuSH (Rule-based Segmentation using Hashing) is an efficient, reliable, and easy adaptable rule-based sentence segmentation
+RuSH is an efficient, reliable, and easy adaptable rule-based sentence segmentation
 solution that can be used in an NLP pipeline either in-line or to pre-annotate clinical texts. It leverages a nested
 hash table data structure to execute simultaneous rule processing, which reduces the impact of the rule-base growth
 on execution time and eliminates the effect of rule order on accuracy. 
@@ -33,8 +33,8 @@ ArrayList<Span> sentences = segmenter.segToSentenceSpans(input);
 
 A UIMA analyses engine that wraps RuSH up is also
 available. The type system in this AE is dynamically coded, so that you can directly plug the AE into your own UIMA pipeline.
-If you are using native UIMA, the AE descripter can be found [here](https://github.com/jianlins/RuSH/blob/master/desc/RuSH_aeDescriptor.xml).
-If you are using UIMAFit, please refer to the example [TestRuSH_AE.java](https://github.com/jianlins/RuSH/blob/master/src/test/java/edu/utah/bmi/RuSH/TestRuSH_AE.java).
+- If you use native UIMA, the AE descripter can be found [here](https://github.com/jianlins/RuSH/blob/master/desc/RuSH_aeDescriptor.xml).
+- If you use UIMAFit, please refer to the example [TestRuSH_AE.java](https://github.com/jianlins/RuSH/blob/master/src/test/java/edu/utah/bmi/RuSH/TestRuSH_AE.java).
 
 Example codes can be found under src/test directory. When adapting RuSH to your local corpus, it is also an efficient way to make 
 test cases while modifying RuSH rules. It will help you easily keep track of the errors that your new rules may introduce.
