@@ -1,7 +1,7 @@
 # RuSH (Rule-based sentence Segmenter using Hashing)
 
 RuSH is an efficient, reliable, and easy adaptable rule-based sentence segmentation
-solution that can be used in an NLP pipeline either in-line or to pre-annotate clinical texts. It leverages a nested
+solution. It is specifically designed to handle the telegraphic written text in clinical note. It leverages a nested
 hash table data structure to execute simultaneous rule processing, which reduces the impact of the rule-base growth
 on execution time and eliminates the effect of rule order on accuracy. 
 
