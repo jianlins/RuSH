@@ -38,6 +38,7 @@
 # \)   A right parentheses symbol
 # <p>
 # The wildcard plus "+": 1 or more wildcard
+
 \b(\a	0	stbegin
 \b(\d	0	stbegin
 \b\w+(\a	0	stbegin

@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package edu.utah.bmi.nlp;
+package edu.utah.bmi.nlp.core;
 
 /**
- * @Author Jianlin Shi
+ * @author Jianlin Shi
  */
 public class Rule implements Cloneable {
     // The rule id in the definition file or owl file

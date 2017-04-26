@@ -15,18 +15,18 @@
  *******************************************************************************/
 
 
-package edu.utah.bmi.rush.core;
+package edu.utah.bmi.nlp.rush.core;
 
-import edu.utah.bmi.nlp.Span;
-import edu.utah.bmi.rush.core.DeterminantValueSet.Determinants;
-import edu.utah.bmi.rush.core.DeterminantValueSet.DirectionPrefer;
+import edu.utah.bmi.nlp.core.Span;
+import edu.utah.bmi.nlp.rush.core.DeterminantValueSet.Determinants;
+import edu.utah.bmi.nlp.rush.core.DeterminantValueSet.DirectionPrefer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @Author Jianlin Shi
+ * @author Jianlin Shi
  */
 public class RuSH {
 

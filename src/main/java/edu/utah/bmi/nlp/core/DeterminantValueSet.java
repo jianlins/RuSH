@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package edu.utah.bmi.rush.uima;
+package edu.utah.bmi.nlp.core;
 
 /**
- * This class is to call UIMA tool jcasgen to generate Java classes for Type descriptor.
- * Whenever you modify the desc/type/RuSH_Types.xml, you need run this class again.
- *
+ * This Determinants is going to be initiated dynamically in edu.utah.FastRule.java
  * @author Jianlin Shi
+ *
  */
-public class RunUIMAJcasGen {
-    public static void main(String[] args) {
-        org.apache.uima.tools.jcasgen.Jg.main(new String[]{"-jcasgeninput", "desc/All_Types.xml", "-jcasgenoutput", "src/main/java/"});
-    }
+
+public class DeterminantValueSet {
+	public enum Determinants {
+		END, ACTUAL, PSEUDO
+	}
 }

@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package edu.utah.bmi.rush.core;
+package edu.utah.bmi.nlp.rush.core;
 
-import edu.utah.bmi.nlp.Span;
-import edu.utah.bmi.nlp.WildCardChecker;
-import edu.utah.bmi.rush.core.DeterminantValueSet.Determinants;
-import edu.utah.bmi.rush.core.DeterminantValueSet.DirectionPrefer;
+import edu.utah.bmi.nlp.core.Span;
+import edu.utah.bmi.nlp.core.WildCardChecker;
+import edu.utah.bmi.nlp.rush.core.DeterminantValueSet.Determinants;
+import edu.utah.bmi.nlp.rush.core.DeterminantValueSet.DirectionPrefer;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -34,11 +34,11 @@ import static java.lang.Character.*;
 /**
  * This class is an extension of FastRules. Instead of handling string-element rules, it handles char-element rules
  * Wildcard definition:
- * <p/>
+ * <p>
  * (   Beginning of capturing a group
  * )   End of capturing a group
- * \p   A punctuation
- * <p/>
+ * </p>   A punctuation
+ * <p>
  * \ plus following characters
  * +   An addition symbol (to distinguish the "+" after a wildcard)
  * (   A left parentheses symbol
@@ -50,7 +50,7 @@ import static java.lang.Character.*;
  * a   A Non-whitespace character
  * u   A unusual character: not a letter, not a number, not a punctuation, not a whitespace
  * n   A return
- * <p/>
+ * </p>
  * The wildcard plus "+": 1 or more wildcard
  *
  * @author Jianlin Shi
@@ -91,13 +91,15 @@ public class FastCRules {
 
 
     /**
-     * Read from ruleFile to construct the rules. The Determinants (enum type) will be generated dynamically
+     * <p>Read from ruleFile to construct the rules. The Determinants (enum type) will be generated dynamically
      * by read the last element of rule;
      * The format of rule file (Using \t to separate):
-     * <p/>
+     * </p>
+     * <p>
      * chars    score   determinant
+     * </p>
      *
-     * @param ruleFile
+     * @param ruleFile The path string of the rule file
      * @throws IOException
      */
 
@@ -130,7 +132,9 @@ public class FastCRules {
     /**
      * Override addRule method
      *
-     * @param rule
+     * @param rule        A char array of rule
+     * @param determinant Specify which type of rule is this
+     * @param score       Specify the priority score of this rule
      * @return true: if the rule is added
      * false: if the rule is a duplicate
      */
@@ -196,9 +200,9 @@ public class FastCRules {
     /**
      * Because the input parameters are different, this method is overridden.
      *
-     * @param text
-     * @param matches
-     * @param directionPrefer
+     * @param text            The input text string
+     * @param matches         Save the matched string in an ArrayList of Spans
+     * @param directionPrefer Specify the preference of directions
      */
     public void processRules(String text, HashMap<Determinants, ArrayList<Span>> matches,
                              DirectionPrefer directionPrefer) {
@@ -217,17 +221,16 @@ public class FastCRules {
 
 
     /**
-     * Because FastCrules use different wildcard, processRules is overridden.
-     *
-     * @param textChars
-     * @param rule
-     * @param matchBegin
-     * @param matchEnd
-     * @param currentPosition
-     * @param matches         K: determinant
-     *                        V: position of the last token that matches the rule in the input
-     *                        ArrayList
-     * @param directionPrefer
+     * @param textChars       Input string in the format of character array
+     * @param rule            The constructed rules Map for processing
+     * @param matchBegin      Store the beginning position of matching
+     * @param matchEnd        Store the ending position of matching
+     * @param currentPosition Store the current position of matching
+     * @param matches         Save the matched string in an ArrayList of Spans
+     * @param directionPrefer Specify the preference of directions
+     * @param previousChar    Store the previous character for wildcard matching use
+     * @param wildcard        Whether wildcard is enabled
+     * @param previousKey     Store the previous previous matched character for replication detection use
      */
     protected void processRules(char[] textChars, HashMap rule, int matchBegin, int matchEnd, int currentPosition,
                                 HashMap<Determinants, ArrayList<Span>> matches, DirectionPrefer directionPrefer,
@@ -239,7 +242,7 @@ public class FastCRules {
 //            System.out.println("key:"+rule.keySet());
 //            System.out.println(rule.values());
             if (rule.containsKey('\\')) {
-                processWildCards(textChars, (HashMap) rule.get('\\'), matchBegin, matchEnd, currentPosition, matches, directionPrefer, previousChar, true, '\\');
+                processWildCards(textChars, (HashMap) rule.get('\\'), matchBegin, matchEnd, currentPosition, matches, directionPrefer, previousChar);
             }
             if (rule.containsKey('(')) {
                 processRules(textChars, (HashMap) rule.get('('), currentPosition, matchEnd, currentPosition, matches,
@@ -287,6 +290,18 @@ public class FastCRules {
     }
 
 
+    /**
+     * @param textChars       Input string in the format of character array
+     * @param rule            The constructed rules Map for processing
+     * @param matchBegin      Store the beginning position of matching
+     * @param matchEnd        Store the ending position of matching
+     * @param currentPosition Store the current position of matching
+     * @param matches         Save the matched string in an ArrayList of Spans
+     * @param directionPrefer Specify the preference of directions
+     * @param previousChar    Store the previous character for wildcard matching use
+     * @param wildcard        Whether wildcard is enabled
+     * @param previousKey     Store the previous previous matched character for replication detection use
+     */
     protected void processRepetition(char[] textChars, HashMap rule, int matchBegin, int matchEnd, int currentPosition, HashMap<Determinants, ArrayList<Span>> matches, DirectionPrefer directionPrefer, char previousChar, boolean wildcard, char previousKey) {
         char thisChar = textChars[currentPosition];
         int currentRepeats = 0;
@@ -408,15 +423,15 @@ public class FastCRules {
      * \+   An addition symbol (to distinguish the "+" after a wildcard)
      * The wildcard plus "+": 1 or more wildcard
      *
-     * @param textChars
-     * @param rule
-     * @param matchBegin
-     * @param matchEnd
-     * @param currentPosition
-     * @param matches
-     * @param directionPrefer
+     * @param textChars       Input string in the format of character array
+     * @param rule            The constructed rules Map for processing
+     * @param matchBegin      Store the beginning position of matching
+     * @param matchEnd        Store the ending position of matching
+     * @param currentPosition Store the current position of matching
+     * @param matches         Save the matched string in an ArrayList of Spans
+     * @param directionPrefer Specify the preference of directions
      */
-    protected void processWildCards(char[] textChars, HashMap rule, int matchBegin, int matchEnd, int currentPosition, HashMap<Determinants, ArrayList<Span>> matches, DirectionPrefer directionPrefer, char previousChar, boolean wildcard, char previousKey) {
+    protected void processWildCards(char[] textChars, HashMap rule, int matchBegin, int matchEnd, int currentPosition, HashMap<Determinants, ArrayList<Span>> matches, DirectionPrefer directionPrefer, char previousChar) {
         char thisChar = textChars[currentPosition];
         for (Object rulechar : rule.keySet()) {
             char thisRuleChar = (Character) rulechar;
@@ -509,9 +524,11 @@ public class FastCRules {
     }
 
     /**
+     * <p>
      * if reaches the end of one or more rules, add all corresponding
      * determinants into the results
-     * <p/>
+     * </p>
+     * <p>
      * The priority of multiple applicable rules can be modified. This version
      * uses the following three rules:
      * 1. if determinant spans overlap, choose the determinant with the widest
@@ -520,12 +537,14 @@ public class FastCRules {
      * largest end.
      * 3. else if prefer left determinant, choose the determinant with the
      * smallest begin.
+     * </p>
      *
-     * @param rule
-     * @param matches
-     * @param matchBegin
-     * @param currentPosition
-     * @param directionPrefer
+     * @param rule            The constructed rules Map for processing
+     * @param matches         Save the matched string in an ArrayList of Spans
+     * @param matchBegin      Store the beginning position of matching
+     * @param matchEnd        Store the ending position of matching
+     * @param currentPosition Store the current position of matching
+     * @param directionPrefer Specify the preference of directions
      */
     @SuppressWarnings("unchecked")
     protected void addDeterminants(HashMap rule, HashMap<Determinants, ArrayList<Span>> matches,
@@ -590,7 +609,7 @@ public class FastCRules {
      * Using "+" to support replications might slow down the performance of FastCRules,
      * try to avoid using it as much as possible.
      *
-     * @param support
+     * @param support Whether support replication grammar
      */
     public void setReplicationSupport(boolean support) {
         this.supportReplications = support;

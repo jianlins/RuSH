@@ -14,11 +14,11 @@
  * limitations under the License.
  *******************************************************************************/
 
-package edu.utah.bmi.nlp;
+package edu.utah.bmi.nlp.core;
 
 
 /**
- * @Author Jianlin Shi
+ * @author Jianlin Shi
  */
 public class WildCardChecker {
     public static boolean isPunctuation(String s) {

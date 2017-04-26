@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package edu.utah.bmi.nlp;
+package edu.utah.bmi.nlp.core;
 
 import java.util.ArrayList;
 
 /**
- * @Author Jianlin Shi
+ * @author Jianlin Shi
  */
 public class SimpleParser {
 
@@ -28,9 +28,9 @@ public class SimpleParser {
     /**
      * Tokenize to an ArrayList of Spans, regardless of sentences or paragraphs
      *
-     * @param text
-     * @param includePunctuation
-     * @return
+     * @param text The input text string for tokenization
+     * @param includePunctuation Whether include punctuations when tokenizing
+     * @return An ArrayList of tokens in Span object format
      */
     public static ArrayList<Span> tokenize2Spans(String text, boolean includePunctuation) {
         ArrayList<Span> tokens = new ArrayList<Span>();

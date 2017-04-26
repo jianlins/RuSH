@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package edu.utah.bmi.rush.uima;
+package edu.utah.bmi.nlp.rush.uima;
 
 
-import edu.utah.bmi.type.system.Sentence;
+import edu.utah.bmi.nlp.type.system.Sentence;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -43,10 +43,12 @@ public class RuSHTestAE_General extends JCasAnnotator_ImplBase {
 
     @Override
     public void initialize(UimaContext cont) {
-        String sentenceTypeName = "edu.utah.bmi.type.system.Sentence";
+        String sentenceTypeName = "edu.utah.bmi.nlp.type.system.Sentence";
         Object obj = cont.getConfigParameterValue(PARAM_SENTENCE_TYPE);
         if (obj != null)
             sentenceTypeName = (String) obj;
+        sentenceTypeName = RuSH_AE.checkTypeDomain(sentenceTypeName);
+
         obj = cont.getConfigParameterValue(PARAM_PRINT_SPAN);
         if (obj != null && obj instanceof Boolean && (Boolean) obj == false)
             printSpan = false;
@@ -77,7 +79,7 @@ public class RuSHTestAE_General extends JCasAnnotator_ImplBase {
             sentences.add(thisSentence);
             if (printSpan)
                 if (printText)
-                    System.out.println(thisSentence.getType().getShortName() + "(" + thisSentence.getBegin() + "~" + thisSentence.getEnd()+"):\t"+thisSentence.getCoveredText().replaceAll("\\n","<\\\\n>"));
+                    System.out.println(thisSentence.getType().getShortName() + "(" + thisSentence.getBegin() + "~" + thisSentence.getEnd() + "):\t" + thisSentence.getCoveredText().replaceAll("\\n", "<\\\\n>"));
                 else
                     System.out.println(thisSentence.getType().getShortName() + ":\t" + thisSentence.getBegin() + "~" + thisSentence.getEnd());
         }
@@ -88,8 +90,8 @@ public class RuSHTestAE_General extends JCasAnnotator_ImplBase {
     /**
      * Get Type System registered Id
      *
-     * @param typeClass
-     * @return
+     * @param typeClass The class object of an UIMA Type
+     * @return The registered Id of the input Type
      */
     public int getTypeId(Class typeClass) {
         int id = 0;

@@ -1,62 +1,63 @@
 
 
 /* First created by JCasGen Fri Nov 04 19:43:41 MDT 2016 */
-package edu.utah.bmi.type.system;
+package edu.utah.bmi.nlp.type.system;
 
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.JCasRegistry;
 import org.apache.uima.jcas.cas.TOP_Type;
+import org.apache.uima.jcas.tcas.Annotation;
 
 
-/**
+/** 
  * Updated by JCasGen Fri Nov 04 19:43:41 MDT 2016
  * XML source: desc/type/All_Types.xml
- * @generated */
-public class SentenceOdd extends Sentence {
-  /** @generated
-   * @ordered 
+ *  */
+public class Token extends Annotation {
+  /** 
+   *  
    */
   @SuppressWarnings ("hiding")
-  public final static int typeIndexID = JCasRegistry.register(edu.utah.bmi.type.system.SentenceOdd.class);
-  /** @generated
-   * @ordered 
+  public final static int typeIndexID = JCasRegistry.register(Token.class);
+  /** 
+   *  
    */
   @SuppressWarnings ("hiding")
   public final static int type = typeIndexID;
-  /** @generated
+  /** 
    * @return index of the type  
    */
   @Override
   public              int getTypeIndexID() {return typeIndexID;}
  
   /** Never called.  Disable default constructor
-   * @generated */
-  protected SentenceOdd() {/* intentionally empty block */}
+   *  */
+  protected Token() {/* intentionally empty block */}
     
   /** Internal - constructor used by generator 
-   * @generated
+   * 
    * @param addr low level Feature Structure reference
    * @param type the type of this Feature Structure 
    */
-  public SentenceOdd(int addr, TOP_Type type) {
+  public Token(int addr, TOP_Type type) {
     super(addr, type);
     readObject();
   }
   
-  /** @generated
+  /** 
    * @param jcas JCas to which this Feature Structure belongs 
    */
-  public SentenceOdd(JCas jcas) {
+  public Token(JCas jcas) {
     super(jcas);
     readObject();   
   } 
 
-  /** @generated
+  /** 
    * @param jcas JCas to which this Feature Structure belongs
    * @param begin offset to the begin spot in the SofA
    * @param end offset to the end spot in the SofA 
   */  
-  public SentenceOdd(JCas jcas, int begin, int end) {
+  public Token(JCas jcas, int begin, int end) {
     super(jcas);
     setBegin(begin);
     setEnd(end);
@@ -68,7 +69,7 @@ public class SentenceOdd extends Sentence {
    * Write your own initialization here
    * <!-- end-user-doc -->
    *
-   * @generated modifiable 
+   *  modifiable 
    */
   private void readObject() {/*default - does nothing empty block */}
      

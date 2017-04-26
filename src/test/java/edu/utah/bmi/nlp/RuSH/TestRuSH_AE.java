@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package edu.utah.bmi.RuSH;
+package edu.utah.bmi.nlp.RuSH;
 
-import edu.utah.bmi.rush.uima.RuSHTestAE_General;
-import edu.utah.bmi.rush.uima.RuSH_AE;
+import edu.utah.bmi.nlp.rush.uima.RuSH_AE;
+import edu.utah.bmi.nlp.rush.uima.RuSHTestAE_General;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -39,13 +39,13 @@ public class TestRuSH_AE {
         jCas = JCasFactory.createJCas(typeDescriptor);
         analysisEngine = AnalysisEngineFactory.createEngine(
                 RuSH_AE.class,
-                RuSH_AE.PARAM_SENTENCE_TYPE_NAME, "edu.utah.bmi.type.system.Sentence",
-                RuSH_AE.PARAM_TOKEN_TYPE_NAME, "edu.utah.bmi.type.system.Token",
+                RuSH_AE.PARAM_SENTENCE_TYPE_NAME, "Sentence",
+                RuSH_AE.PARAM_TOKEN_TYPE_NAME, "Token",
                 RuSH_AE.PARAM_RULE_FILE, "conf/rush_rules.csv",
                 RuSH_AE.PARAM_FIX_GAPS, true);
         testAnalysisEngine = AnalysisEngineFactory.createEngine(
                 RuSHTestAE_General.class,
-                RuSHTestAE_General.PARAM_SENTENCE_TYPE, "edu.utah.bmi.type.system.Sentence",
+                RuSHTestAE_General.PARAM_SENTENCE_TYPE, "Sentence",
                 RuSHTestAE_General.PARAM_PRINT_SPAN, true,
                 RuSHTestAE_General.PARAM_PRINT_TEXT, true);
     }

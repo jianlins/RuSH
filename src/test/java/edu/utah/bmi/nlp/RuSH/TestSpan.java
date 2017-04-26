@@ -13,19 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package edu.utah.bmi;
+package edu.utah.bmi.nlp.RuSH;
+
+import edu.utah.bmi.nlp.core.Span;
+import org.junit.Test;
+
+import java.util.TreeSet;
 
 /**
- * This java class is to use UIMA tools (CPE, CPE-GUI, or DocumentAnalyzer) conveniently.
- * - Use CpmFrame to modify the CPE descriptor.xml (In the menu, open file, locate your local FastContext_General_CPEdesc.xml, and load it)
- * - Use SimpleRunCPE to run CPE more quickly without any configuration
- * - Use DocumentAnalyzer to launch UIMA DocumentAnalyzer.
  * @Author Jianlin Shi
  */
-public class RunUIMACPE {
-    public static void main(String[] args) throws Exception{
-//      org.apache.uima.tools.cpm.CpmFrame.main(args);
-//      org.apache.uima.tools.docanalyzer.DocumentAnalyzer.main(args);
-        org.apache.uima.examples.cpe.SimpleRunCPE.main(new String[]{"desc/FUSS_DiffColor_POET_CPEdesc.xml"});
+public class TestSpan {
+    @Test
+    public void test() {
+        Span a = new Span(0, 1);
+        Span b = new Span(0, 2);
+        System.out.println(a == b);
+        TreeSet<Span> set = new TreeSet<Span>();
+        set.add(a);
+        set.add(b);
+        set.add(new Span(1, 3));
+        System.out.println(set.size());
+        for (Span sp : set)
+            System.out.println(sp.begin + "-" + sp.end);
+        set.add(new Span(1, 2));
+        System.out.println(set.size());
+        for (Span sp : set)
+            System.out.println(sp.begin + "-" + sp.end);
+        set.add(new Span(2, 3));
+        System.out.println(set.size());
+        for (Span sp : set)
+            System.out.println(sp.begin + "-" + sp.end);
+
+
     }
 }

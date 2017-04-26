@@ -3,11 +3,84 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>edu.utah.bmi</groupId>
+    <groupId>edu.utah.bmi.nlp</groupId>
     <artifactId>rush</artifactId>
     <version>1.0</version>
+    <name>RuSH (Rule-based sentence Segmenter using Hashing)</name>
+    <url>https://github.com/jianlins/RuSH</url>
+    <scm>
+        <connection>https://github.com/jianlins/RuSH.git</connection>
+        <url>scm:git:git@github.com:jianlins/RuSH.git</url>
+        <developerConnection>scm:git:git@github.com:jianlins/RuSH.git</developerConnection>
+    </scm>
+    <description>RuSH is an efficient, reliable, and easy adaptable rule-based sentence segmentation solution. It is
+        specifically designed to handle the telegraphic written text in clinical note. It leverages a nested hash table
+        to execute simultaneous rule processing, which reduces the impact of the rule-base growth on execution time and
+        eliminates the effect of rule order on accuracy.
+
+        If you wish to cite RuSH in a publication, please use:
+
+        Jianlin Shi ; Danielle Mowery ; Kristina M. Doing-Harris ; John F. Hurdle.RuSH: a Rule-based Segmentation Tool
+        Using Hashing for Extremely Accurate Sentence Segmentation of Clinical Text. AMIA Annu Symp Proc. 2016: 1587.
+
+        The full text can be found at:
+        https://knowledge.amia.org/amia-63300-1.3360278/t005-1.3362920/f005-1.3362921/2495498-1.3363244/2495498-1.3363247?timeStamp=1479743941616
+    </description>
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+        </license>
+    </licenses>
+    <organization>
+        <name>The Department of Biomedical Informatics, University of Utah</name>
+        <url>bmi.utah.edu</url>
+    </organization>
+    <developers>
+        <developer>
+            <name>Jianlin Shi</name>
+            <email>jianlinshi.cn@gmail.com</email>
+            <organization>The Department of Biomedical Informatics, University of Utah</organization>
+            <organizationUrl>bmi.utah.edu</organizationUrl>
+        </developer>
+    </developers>
+    <contributors>
+        <contributor>
+            <name>Danielle Mowery</name>
+            <email>danielle.mowery@utah.edu</email>
+        </contributor>
+        <contributor>
+            <name>Kristina M. Doing-Harris</name>
+            <email>kdoing-harris@westminstercollege.edu</email>
+        </contributor>
+        <contributor>
+            <name>John F. Hurdle</name>
+            <email>john.hurdle@utah.edu</email>
+        </contributor>
+    </contributors>
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.8</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -39,11 +112,39 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
+                <version>2.4</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
                         <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.4</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
                             <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -80,11 +181,6 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.12</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.uima</groupId>
-            <artifactId>uimafit-core</artifactId>
-            <version>2.1.0</version>
         </dependency>
     </dependencies>
 

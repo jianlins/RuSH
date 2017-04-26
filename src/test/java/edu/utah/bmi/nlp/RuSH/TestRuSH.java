@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package edu.utah.bmi.RuSH;
+package edu.utah.bmi.nlp.RuSH;
 
-import edu.utah.bmi.nlp.Span;
-import edu.utah.bmi.rush.core.RuSH;
+import edu.utah.bmi.nlp.core.Span;
+import edu.utah.bmi.nlp.rush.core.RuSH;
 import org.junit.Before;
 import org.junit.Test;
 

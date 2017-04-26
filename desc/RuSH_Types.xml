@@ -8,21 +8,21 @@
     <vendor/>
     <types>
         <typeDescription>
-            <name>edu.utah.bmi.type.system.Sentence</name>
+            <name>edu.utah.bmi.nlp.type.system.Sentence</name>
             <description/>
             <supertypeName>uima.tcas.Annotation</supertypeName>
             <features>
             </features>
         </typeDescription>
         <typeDescription>
-            <name>edu.utah.bmi.type.system.SentenceOdd</name>
+            <name>edu.utah.bmi.nlp.type.system.SentenceOdd</name>
             <description/>
-            <supertypeName>edu.utah.bmi.type.system.Sentence</supertypeName>
+            <supertypeName>edu.utah.bmi.nlp.type.system.Sentence</supertypeName>
             <features>
             </features>
         </typeDescription>
         <typeDescription>
-            <name>edu.utah.bmi.type.system.Token</name>
+            <name>edu.utah.bmi.nlp.type.system.Token</name>
             <description/>
             <supertypeName>uima.tcas.Annotation</supertypeName>
             <features>

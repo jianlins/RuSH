@@ -40,3 +40,14 @@ Example codes can be found under [src/test](https://github.com/jianlins/RuSH/tre
 test cases while modifying RuSH rules. It will help you easily keep track of the errors that your new rules may introduce.
 
 
+## Maven set up:
+
+If you prefer to use the published version on maven central, you can configure your maven dependency in pom as following:
+```
+<dependency>
+  <groupId>edu.utah.bmi</groupId>
+  <artifactId>rush</artifactId>
+  <version>1.0</version>
+</dependency>
+```
+

@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package edu.utah.bmi.rush.uima;
+package edu.utah.bmi.nlp.rush.uima;
 
-import edu.utah.bmi.nlp.SimpleParser;
-import edu.utah.bmi.nlp.Span;
-import edu.utah.bmi.nlp.WildCardChecker;
-import edu.utah.bmi.rush.core.RuSH;
+import edu.utah.bmi.nlp.core.SimpleParser;
+import edu.utah.bmi.nlp.core.Span;
+import edu.utah.bmi.nlp.core.WildCardChecker;
+import edu.utah.bmi.nlp.rush.core.RuSH;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -71,9 +71,23 @@ public class RuSH_AE extends JCasAnnotator_ImplBase {
             autoFixGaps = (Boolean) autoFixGapsObj;
         }
         String sentenceTypeName, alterSentenceTypeName = null, tokenTypeName;
-        sentenceTypeName = (String) (cont.getConfigParameterValue(PARAM_SENTENCE_TYPE_NAME));
-        tokenTypeName = (String) (cont.getConfigParameterValue(PARAM_TOKEN_TYPE_NAME));
-        Object obj = cont.getConfigParameterValue(PARAM_ALTER_SENTENCE_TYPE_NAME);
+        Object obj = cont.getConfigParameterValue(PARAM_SENTENCE_TYPE_NAME);
+        if (obj != null && obj instanceof String) {
+            sentenceTypeName = ((String) obj).trim();
+            sentenceTypeName = checkTypeDomain(sentenceTypeName);
+        } else {
+            sentenceTypeName = "edu.utah.bmi.nlp.type.system.Sentence";
+        }
+        obj = cont.getConfigParameterValue(PARAM_TOKEN_TYPE_NAME);
+        if (obj != null && obj instanceof String) {
+            tokenTypeName = ((String) obj).trim();
+            tokenTypeName = checkTypeDomain(tokenTypeName);
+        } else {
+            tokenTypeName = "edu.utah.bmi.nlp.type.system.Token";
+        }
+
+
+        obj = cont.getConfigParameterValue(PARAM_ALTER_SENTENCE_TYPE_NAME);
         if (obj != null && obj instanceof String) {
             alterSentenceTypeName = ((String) obj).trim();
             if (alterSentenceTypeName.length() > 0)
@@ -190,5 +204,12 @@ public class RuSH_AE extends JCasAnnotator_ImplBase {
             e.printStackTrace();
         }
         anno.addToIndexes();
+    }
+
+    public static String checkTypeDomain(String typeName) {
+        if (typeName.indexOf(".") == -1) {
+            typeName = "edu.utah.bmi.nlp.type.system." + typeName;
+        }
+        return typeName;
     }
 }
