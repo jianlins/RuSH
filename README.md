@@ -18,7 +18,7 @@ The full text can be found [here](https://knowledge.amia.org/amia-63300-1.336027
 
 A standalone RuSH class is available to be directly used in your code. 
 
-```
+```java
 RuSH segmenter = new RuSH("conf/rush_rules.csv");
 
 String input = "The patient was admitted on 03/26/08\n and was started on IV antibiotics elevation" +
