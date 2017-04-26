@@ -50,4 +50,4 @@ If you prefer to use the published version on maven central, you can configure y
   <version>1.0</version>
 </dependency>
 ```
-
+Note: if this maven distribution does not include the RuSH rule file, you will need to download it from [here](https://github.com/jianlins/RuSH/blob/master/conf/rush_rules.csv). 
