@@ -16,12 +16,12 @@
 package edu.utah.bmi.nlp.rush.uima;
 
 
-import edu.utah.bmi.nlp.type.system.Sentence;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.FSIndex;
 import org.apache.uima.jcas.JCas;
+import org.apache.uima.jcas.tcas.Annotation;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -32,7 +32,7 @@ import java.util.Iterator;
  *
  * @author Jianlin Shi
  */
-public class RuSHTestAE_General extends JCasAnnotator_ImplBase {
+public class RuSHTest_AE extends JCasAnnotator_ImplBase {
 
 
     protected static int sentenceTypeId = 0;
@@ -73,9 +73,9 @@ public class RuSHTestAE_General extends JCasAnnotator_ImplBase {
     public void process(JCas jcas) throws AnalysisEngineProcessException {
         FSIndex annoIndex = jcas.getAnnotationIndex(sentenceTypeId);
         Iterator annoIter = annoIndex.iterator();
-        ArrayList<Sentence> sentences = new ArrayList<>();
+        ArrayList<Annotation> sentences = new ArrayList<>();
         while (annoIter.hasNext()) {
-            Sentence thisSentence = (Sentence) annoIter.next();
+            Annotation thisSentence = (Annotation) annoIter.next();
             sentences.add(thisSentence);
             if (printSpan)
                 if (printText)

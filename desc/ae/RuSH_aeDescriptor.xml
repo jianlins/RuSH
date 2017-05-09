@@ -76,7 +76,9 @@
             </nameValuePair>
         </configurationParameterSettings>
         <typeSystemDescription>
-            <imports>All_Types.xml</imports>
+            <imports>
+                <import location="../type/All_Types.xml"></import>
+            </imports>
         </typeSystemDescription>
         <typePriorities/>
         <fsIndexCollection/>
