@@ -56,7 +56,7 @@ public class RuSH_AE extends JCasAnnotator_ImplBase {
 	public static final String PARAM_INSIDE_SECTIONS = "InsideSections";
 
 	public static final String PARAM_FIX_GAPS = "AutoFixGaps";
-	public static final String PARAM_RULE_FILE = "RuleFile";
+	public static final String PARAM_RULE_STR = "RuleStr";
 	public static final String PARAM_SENTENCE_TYPE_NAME = "SentenceTypeName";
 
 	//  if this parameter is set, then the adjacent sentences will be annotated in different color-- easy to review
@@ -76,7 +76,7 @@ public class RuSH_AE extends JCasAnnotator_ImplBase {
 
 
 		String ruleFileName = (String) (cont
-				.getConfigParameterValue(PARAM_RULE_FILE));
+				.getConfigParameterValue(PARAM_RULE_STR));
 		seg = new RuSH(ruleFileName);
 //        seg.setDebug(true);
 		seg.setSpecialCharacterSupport(true);
