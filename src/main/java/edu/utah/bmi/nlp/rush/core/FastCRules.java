@@ -123,7 +123,7 @@ public class FastCRules {
 	}
 
 	private void parseLine(String line) {
-		if (line.length() == 0)
+		if (line.trim().length() == 0)
 			return;
 		if (line.charAt(0) == '#') {
 			return;
