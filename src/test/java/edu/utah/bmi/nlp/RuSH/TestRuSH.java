@@ -45,7 +45,7 @@ public class TestRuSH {
 
     @Before
     public void initiate() {
-        segmenter = new RuSH("conf/rush_rules.csv");
+        segmenter = new RuSH("conf/rush_rules.tsv");
         segmenter.setDebug(debug);
         segmenter.setSpecialCharacterSupport(true);
     }

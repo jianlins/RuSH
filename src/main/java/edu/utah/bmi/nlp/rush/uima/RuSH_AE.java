@@ -117,6 +117,7 @@ public class RuSH_AE extends JCasAnnotator_ImplBase {
 		else {
 			for (String sectionName : ((String) obj).split("[\\|,;]")) {
 				sectionName = sectionName.trim();
+
 				if (sectionName.length() > 0) {
 					sectionClasses.add(AnnotationOper.getTypeClass(DeterminantValueSet.checkNameSpace(sectionName)));
 				}
