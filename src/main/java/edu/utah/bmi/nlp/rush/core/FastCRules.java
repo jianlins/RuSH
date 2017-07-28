@@ -111,6 +111,8 @@ public class FastCRules {
         double score = 0d;
         if (cells.size() > 1)
             score = Double.parseDouble(cells.get(1));
+        if (cells.size()<3)
+            System.out.println(cells);
         String determinant = cells.get(2).trim();
         char[] rule = cells.get(0).toCharArray();
         addRule(rule, Determinants.valueOf(determinant), score);
