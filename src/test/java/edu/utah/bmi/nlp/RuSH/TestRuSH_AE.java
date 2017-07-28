@@ -45,7 +45,7 @@ public class TestRuSH_AE {
 				RuSH_AE.class,
 				RuSH_AE.PARAM_SENTENCE_TYPE_NAME, "Sentence",
 				RuSH_AE.PARAM_TOKEN_TYPE_NAME, "Token",
-				RuSH_AE.PARAM_RULE_STR, "conf/rush_rules.tsv",
+				RuSH_AE.PARAM_RULE_STR, "conf/rush_rules.xlsx",
 				RuSH_AE.PARAM_FIX_GAPS, true);
 		testAnalysisEngine = AnalysisEngineFactory.createEngine(
 				RuSHTest_AE.class,

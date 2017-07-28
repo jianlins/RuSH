@@ -15,7 +15,7 @@
 # *******************************************************************************/
 
 #this list is optimized for shorter rule length rules for semeval were added
-#FastCRules.maxRepeatLength = 100;
+@maxRepeatLength:100
 
 #stbegin is the marker for sentence begin, the span of sentence will start at the begin of the captured group
 #stbegin has two scores 0, 1: 0 for true sentence begin, 1 for false sentence begin which will overwrite 0 when they are overlapping

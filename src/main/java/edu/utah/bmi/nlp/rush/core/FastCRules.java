@@ -64,7 +64,7 @@ public class FastCRules {
     protected int ruleId = 0;
     protected final Determinants END = Determinants.END;
     //  max length of repeat char---to prevent overflow 25 works perfect, 10 is optimized for speed
-    protected final int maxRepeatLength = 100;
+    protected int maxRepeatLength = 100;
     protected boolean supportReplications = false, scSupport = false;
     protected boolean debug = true;
 
@@ -97,11 +97,12 @@ public class FastCRules {
      * </p>
      *
      * @param ruleFile The path string of the rule file
-     * @throws IOException
      */
 
     protected void initiate(String ruleFile) {
         IOUtil ioUtil = new IOUtil(ruleFile, false);
+        if(ioUtil.getSettings().containsKey("maxRepeatLength"))
+            maxRepeatLength=Integer.parseInt(ioUtil.getSettings().get("maxRepeatLength"));
         for (ArrayList<String> cells : ioUtil.getRuleCells()) {
             parseRow(cells);
         }
