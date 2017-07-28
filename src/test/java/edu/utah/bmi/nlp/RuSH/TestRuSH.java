@@ -45,7 +45,9 @@ public class TestRuSH {
 
     @Before
     public void initiate() {
-        segmenter = new RuSH("conf/rush_rules.xlsx");
+//        segmenter = new RuSH("conf/rush_rules.xlsx");
+
+        segmenter = new RuSH(this.getClass().getClassLoader().getResource("mimic.tsv").getPath());
         segmenter.setDebug(debug);
         segmenter.setSpecialCharacterSupport(true);
     }
@@ -72,6 +74,18 @@ public class TestRuSH {
         assert (sentences.get(1).begin == 15 && sentences.get(1).end == 42);
         assert (sentences.get(2).begin == 43 && sentences.get(2).end == 59);
 
+    }
+
+    @Test
+    public void test3() {
+        String input = "     REASON FOR THIS EXAMINATION:\n" +
+                "      please assess for effusions/pneumonia                                           \n" +
+                "     ______________________________________________________________________________\n" +
+                "                                     FINAL REPORT\n" +
+                "     HISTORY: Patient with hypotension, cardiac arrest, RIJ line insertion.";
+        ArrayList<Span> sentences = segmenter.segToSentenceSpans(input);
+        input = input.replaceAll("\n", " ");
+        printDetails(sentences, input, debug);
     }
 
 }

@@ -64,7 +64,7 @@ public class RuSH {
             for (Map.Entry<Determinants, ArrayList<Span>> ent : result.entrySet()) {
                 System.out.println(ent.getKey());
                 for (Span span : ent.getValue()) {
-                    System.out.println("\t" + span.begin + "-" + span.end + ":" + span.score + "\t" + text.substring(0, span.begin) + "<" + text.substring(span.begin, span.begin + 1) + ">\t" + span.ruleId+"\t"+fcrp.getRuleString(span.ruleId));
+                    System.out.println("\t" + span.begin + "-" + span.end + ":" + span.score + "\t" + text.substring(0, span.begin) + "<" + text.substring(span.begin, span.begin + 1) + ">\t" + span.ruleId + "\t" + fcrp.getRuleString(span.ruleId));
                 }
 
             }
@@ -75,35 +75,39 @@ public class RuSH {
 
 //        if(begins==null)
 //        System.out.println(text);
-        if(begins==null || begins.size()==0) {
-            begins=new ArrayList<Span>();
+        if (begins == null || begins.size() == 0) {
+            begins = new ArrayList<Span>();
             begins.add(new Span(0, 1, 1, -1));
         }
-        if(ends==null || ends.size()==0) {
-            ends=new ArrayList<Span>();
+        if (ends == null || ends.size() == 0) {
+            ends = new ArrayList<Span>();
             ends.add(new Span(text.length() - 1, text.length(), 1, -1));
         }
 
 
-        int stBegin=0;
+        int stBegin = 0;
         boolean sentenceStarted = false;
-        int stEnd=0, i = 0, j = 0;
+        int stEnd = 0, i = 0, j = 0;
         for (i = 0; i < begins.size(); i++) {
             if (!sentenceStarted) {
                 stBegin = begins.get(i).begin;
-                if(begins.get(i).score==1 || stBegin<stEnd)
+                if (begins.get(i).score == 1 || stBegin < stEnd)
                     continue;
                 sentenceStarted = true;
             } else {
                 continue;
             }
             for (int k = j; k < ends.size(); k++) {
-                if(ends.get(k).score==3)
+                if (ends.get(k).score == 3)
                     continue;
-                stEnd = ends.get(k).begin+1;
-
+                if (i < begins.size() - 1 && k < ends.size() - 1
+                        && begins.get(i + 1).getBegin() < ends.get(k).begin + 1) {
+                    break;
+                }
+                stEnd = ends.get(k).begin + 1;
+                j = k;
 //                right trim
-                while (stEnd >= 1 && (Character.isWhitespace(text.charAt(stEnd-1)) || (int)text.charAt(stEnd-1)==160)) {
+                while (stEnd >= 1 && (Character.isWhitespace(text.charAt(stEnd - 1)) || (int) text.charAt(stEnd - 1) == 160)) {
                     stEnd--;
                 }
 
@@ -114,6 +118,10 @@ public class RuSH {
 //                   if current status is after a sentence begin marker
                     output.add(new Span(stBegin, stEnd));
                     sentenceStarted = false;
+                    if (i == begins.size() - 1 ||
+                            (k < ends.size() - 1
+                                    && begins.get(i + 1).getBegin() > ends.get(k + 1).getEnd()))
+                        continue;
                     break;
                 } else {
 //                   if current status is after a sentence end marker, then replace the last output
@@ -125,12 +133,12 @@ public class RuSH {
         return output;
     }
 
-    public void setDebug(boolean debug){
-        this.debug=debug;
+    public void setDebug(boolean debug) {
+        this.debug = debug;
         fcrp.setDebug(debug);
     }
 
-    public void setSpecialCharacterSupport(Boolean scSupport){
+    public void setSpecialCharacterSupport(Boolean scSupport) {
         fcrp.setSpecialCharacterSupport(scSupport);
     }
 }
