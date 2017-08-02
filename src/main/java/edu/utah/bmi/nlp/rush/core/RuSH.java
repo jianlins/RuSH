@@ -94,7 +94,7 @@ public class RuSH {
                 if (begins.get(i).score == 1 || stBegin < stEnd)
                     continue;
                 sentenceStarted = true;
-            } else {
+            } else if(begins.get(i).begin < stEnd) {
                 continue;
             }
             for (int k = j; k < ends.size(); k++) {

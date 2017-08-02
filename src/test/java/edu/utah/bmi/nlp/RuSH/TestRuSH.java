@@ -78,11 +78,16 @@ public class TestRuSH {
 
     @Test
     public void test3() {
-        String input = "     REASON FOR THIS EXAMINATION:\n" +
-                "      please assess for effusions/pneumonia                                           \n" +
-                "     ______________________________________________________________________________\n" +
-                "                                     FINAL REPORT\n" +
-                "     HISTORY: Patient with hypotension, cardiac arrest, RIJ line insertion.";
+        String input =" •  Coagulopathy (HCC)    \n" +
+                "\n" +
+                "\n" +
+                "\n" +
+                " •  Hepatic encephalopathy (HCC)    \n" +
+                "\n" +
+                "\n" +
+                "\n" +
+                " •  Hepatorenal syndrome (HCC)    \n" +
+                "\n";
         ArrayList<Span> sentences = segmenter.segToSentenceSpans(input);
         input = input.replaceAll("\n", " ");
         printDetails(sentences, input, debug);
