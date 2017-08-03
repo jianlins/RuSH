@@ -163,7 +163,7 @@ public class RuSH_AE extends JCasAnnotator_ImplBase {
 				fixGap(jCas, text, previousEnd, thisBegin, sectionBegin);
 			}
 			previousEnd = sentence.end;
-			ArrayList<Span> tokens = SimpleParser.tokenize2Spans(text.substring(sentence.begin, sentence.end), includePunctuation);
+			ArrayList<Span> tokens = SimpleParser.tokenizeDecimalSmart(text.substring(sentence.begin, sentence.end), includePunctuation);
 			saveSentences(jCas, sentence, sectionBegin);
 			saveTokens(jCas, sentence, tokens, sectionBegin);
 		}

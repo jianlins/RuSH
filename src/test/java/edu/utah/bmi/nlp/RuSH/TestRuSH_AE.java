@@ -111,7 +111,7 @@ public class TestRuSH_AE {
 	@Test
 	public void test4() throws AnalysisEngineProcessException, ResourceInitializationException {
 		String text =
-				" •  Coagulopathy (HCC)    \n" +
+				" •  Coagulopathy (HCC) 6.8%   \n" +
 				"\n" +
 				"\n" +
 				"\n" +
