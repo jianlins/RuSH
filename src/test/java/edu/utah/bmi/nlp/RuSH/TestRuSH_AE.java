@@ -111,16 +111,7 @@ public class TestRuSH_AE {
 	@Test
 	public void test4() throws AnalysisEngineProcessException, ResourceInitializationException {
 		String text =
-				" •  Coagulopathy (HCC) 6.8%   \n" +
-				"\n" +
-				"\n" +
-				"\n" +
-				" •  Hepatic encephalopathy (HCC)    \n" +
-				"\n" +
-				"\n" +
-				"\n" +
-				" •  Hepatorenal syndrome (HCC)    \n" +
-				"\n";
+				"TEMP 98.6,   FIO2 WEANED TO .70 DURING ";
 		jCas.reset();
 		jCas.setDocumentText(text);
 		SourceDocumentInformation sourceDocumentInformation = new SourceDocumentInformation(jCas, 0, text.length());
