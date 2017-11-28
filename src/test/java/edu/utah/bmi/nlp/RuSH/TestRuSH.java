@@ -28,7 +28,7 @@ import java.util.ArrayList;
  */
 public class TestRuSH {
     private RuSH segmenter;
-    private boolean debug = true;
+    private boolean debug = false;
 
     public static void printDetails(ArrayList<Span> sentences, String input, boolean debug) {
         if (debug) {

@@ -34,6 +34,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.logging.Logger;
 
 import static java.lang.Character.isAlphabetic;
 import static java.lang.Character.isDigit;
@@ -46,6 +47,7 @@ import static java.lang.Character.isDigit;
  */
 public class RuSH_AE extends JCasAnnotator_ImplBase {
 
+    public static Logger logger = Logger.getLogger(RuSH_AE.class.getCanonicalName());
     protected RuSH seg;
     protected boolean autoFixGaps = true;
 
@@ -66,6 +68,7 @@ public class RuSH_AE extends JCasAnnotator_ImplBase {
 
     public static final String PARAM_INCLUDE_PUNCTUATION = "IncludePunctuation";
 
+    @Deprecated
     public static final String PARAM_DEBUG = "Debug";
 
     protected Class<? extends Annotation> SentenceType, AlterSentenceType, TokenType;

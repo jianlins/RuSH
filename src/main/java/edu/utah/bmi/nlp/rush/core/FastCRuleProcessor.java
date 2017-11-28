@@ -63,6 +63,7 @@ public class FastCRuleProcessor {
         fastCRules.setSpecialCharacterSupport(scSupport);
     }
 
+    @Deprecated
     public void setDebug(boolean debug) {
         fastCRules.setDebug(debug);
     }

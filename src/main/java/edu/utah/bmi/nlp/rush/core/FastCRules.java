@@ -21,12 +21,10 @@ import edu.utah.bmi.nlp.core.WildCardChecker;
 import edu.utah.bmi.nlp.rush.core.DeterminantValueSet.Determinants;
 import edu.utah.bmi.nlp.rush.core.DeterminantValueSet.DirectionPrefer;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -58,6 +56,7 @@ import static java.lang.Character.*;
  */
 @SuppressWarnings("rawtypes")
 public class FastCRules {
+    public static Logger logger = Logger.getLogger(RuSH.class.getCanonicalName());
     //  other  fields are defined in abstract class
     protected HashMap<Integer, Double> scores = new HashMap<Integer, Double>();
     protected HashMap<Integer, String> ruleStore = new HashMap<Integer, String>();
@@ -66,6 +65,7 @@ public class FastCRules {
     //  max length of repeat char---to prevent overflow 25 works perfect, 10 is optimized for speed
     protected int maxRepeatLength = 100;
     protected boolean supportReplications = false, scSupport = false;
+    @Deprecated
     protected boolean debug = true;
 
     protected HashMap rules = new HashMap();
@@ -101,8 +101,8 @@ public class FastCRules {
 
     protected void initiate(String ruleFile) {
         IOUtil ioUtil = new IOUtil(ruleFile, false);
-        if(ioUtil.getSettings().containsKey("maxRepeatLength"))
-            maxRepeatLength=Integer.parseInt(ioUtil.getSettings().get("maxRepeatLength"));
+        if (ioUtil.getSettings().containsKey("maxRepeatLength"))
+            maxRepeatLength = Integer.parseInt(ioUtil.getSettings().get("maxRepeatLength"));
         for (ArrayList<String> cells : ioUtil.getRuleCells()) {
             parseRow(cells);
         }
@@ -112,7 +112,7 @@ public class FastCRules {
         double score = 0d;
         if (cells.size() > 1)
             score = Double.parseDouble(cells.get(1));
-        if (cells.size()<3)
+        if (cells.size() < 3)
             System.out.println(cells);
         String determinant = cells.get(2).trim();
         char[] rule = cells.get(0).toCharArray();
@@ -146,8 +146,7 @@ public class FastCRules {
         }
         // if the rule has been included
         if (i == length && rule1.containsKey(END) && rule1.get(END) == determinant) {
-            if (debug)
-                System.out.println("This rule has been included");
+            logger.finest("Rule has been included: line " + ruleId + "\t" + rule);
             return false;
         }
         // start with the determinant, construct the last descendant HashMap
@@ -160,7 +159,7 @@ public class FastCRules {
                 rule1.put(END, rule2.clone());
             }
             setScore(ruleId, score);
-            if (debug) {
+            if (logger.getLevel() == Level.FINEST) {
                 ruleStore.put(ruleId, new String(rule));
             }
             ruleId++;
@@ -179,7 +178,7 @@ public class FastCRules {
         }
 //      map rule to score;
         setScore(ruleId, score);
-        if (debug) {
+        if (logger.getLevel() == Level.FINEST) {
             ruleStore.put(ruleId, new String(rule));
         }
         ruleId++;
@@ -662,12 +661,13 @@ public class FastCRules {
         this.scSupport = scSupport;
     }
 
+    @Deprecated
     public void setDebug(boolean debug) {
         this.debug = debug;
     }
 
     public String getRuleString(int ruleId) {
-        if (debug && this.ruleStore.containsKey(ruleId)) {
+        if (logger.getLevel() == Level.FINEST && this.ruleStore.containsKey(ruleId)) {
             return this.ruleStore.get(ruleId);
         } else {
             return "";

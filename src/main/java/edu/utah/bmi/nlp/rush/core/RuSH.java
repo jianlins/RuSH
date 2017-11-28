@@ -20,18 +20,26 @@ package edu.utah.bmi.nlp.rush.core;
 import edu.utah.bmi.nlp.core.Span;
 import edu.utah.bmi.nlp.rush.core.DeterminantValueSet.Determinants;
 import edu.utah.bmi.nlp.rush.core.DeterminantValueSet.DirectionPrefer;
+import edu.utah.bmi.nlp.rush.uima.RuSH_AE;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 /**
  * @author Jianlin Shi
  */
 public class RuSH {
 
+    public static Logger logger = Logger.getLogger(RuSH.class.getCanonicalName());
     protected static FastCRuleProcessor fcrp;
     protected static Determinants begin, end;
+    @Deprecated
     protected boolean debug = false;
 
 
@@ -40,6 +48,15 @@ public class RuSH {
     }
 
     public void initiate(String rule) {
+        if (System.getProperty("java.util.logging.config.file") == null &&
+                new File("logging.properties").exists()) {
+            System.setProperty("java.util.logging.config.file", "logging.properties");
+        }
+        try {
+            LogManager.getLogManager().readConfiguration();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         fcrp = new FastCRuleProcessor(rule);
         fcrp.setReplicationSupport(true);
 
@@ -59,12 +76,14 @@ public class RuSH {
         ArrayList<Span> output = new ArrayList<Span>();
         HashMap<Determinants, ArrayList<Span>> result = fcrp.processString(text, DirectionPrefer.none);
 
-        if (debug) {
+        if (logger.getLevel()== Level.FINEST) {
             text = text.replaceAll("\n", " ");
             for (Map.Entry<Determinants, ArrayList<Span>> ent : result.entrySet()) {
-                System.out.println(ent.getKey());
+                logger.finest(ent.getKey().toString());
                 for (Span span : ent.getValue()) {
-                    System.out.println("\t" + span.begin + "-" + span.end + ":" + span.score + "\t" + text.substring(0, span.begin) + "<" + text.substring(span.begin, span.begin + 1) + ">\t" + span.ruleId + "\t" + fcrp.getRuleString(span.ruleId));
+                    logger.finest("\t" + span.begin + "-" + span.end + ":" + span.score + "\t" +
+                            text.substring(0, span.begin) + "<" + text.substring(span.begin, span.begin + 1)
+                            + ">\t" + span.ruleId + "\t" + fcrp.getRuleString(span.ruleId));
                 }
 
             }
@@ -133,6 +152,7 @@ public class RuSH {
         return output;
     }
 
+    @Deprecated
     public void setDebug(boolean debug) {
         this.debug = debug;
         fcrp.setDebug(debug);
