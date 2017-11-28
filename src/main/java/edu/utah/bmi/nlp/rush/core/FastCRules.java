@@ -15,9 +15,7 @@
  *******************************************************************************/
 package edu.utah.bmi.nlp.rush.core;
 
-import edu.utah.bmi.nlp.core.IOUtil;
-import edu.utah.bmi.nlp.core.Span;
-import edu.utah.bmi.nlp.core.WildCardChecker;
+import edu.utah.bmi.nlp.core.*;
 import edu.utah.bmi.nlp.rush.core.DeterminantValueSet.Determinants;
 import edu.utah.bmi.nlp.rush.core.DeterminantValueSet.DirectionPrefer;
 
@@ -59,7 +57,7 @@ public class FastCRules {
     public static Logger logger = Logger.getLogger(RuSH.class.getCanonicalName());
     //  other  fields are defined in abstract class
     protected HashMap<Integer, Double> scores = new HashMap<Integer, Double>();
-    protected HashMap<Integer, String> ruleStore = new HashMap<Integer, String>();
+    protected HashMap<Integer, Rule> ruleStore = new HashMap<>();
     protected int ruleId = 0;
     protected final Determinants END = Determinants.END;
     //  max length of repeat char---to prevent overflow 25 works perfect, 10 is optimized for speed
@@ -67,6 +65,9 @@ public class FastCRules {
     protected boolean supportReplications = false, scSupport = false;
     @Deprecated
     protected boolean debug = true;
+
+    protected int offset = 0;
+    protected HashMap<String, IntervalST> overlapCheckers = new HashMap<>();
 
     protected HashMap rules = new HashMap();
     protected Pattern pdigit;
@@ -100,7 +101,7 @@ public class FastCRules {
      */
 
     protected void initiate(String ruleFile) {
-        IOUtil ioUtil = new IOUtil(ruleFile, false);
+        IOUtil ioUtil = new IOUtil(ruleFile, true);
         if (ioUtil.getSettings().containsKey("maxRepeatLength"))
             maxRepeatLength = Integer.parseInt(ioUtil.getSettings().get("maxRepeatLength"));
         for (ArrayList<String> cells : ioUtil.getRuleCells()) {
@@ -110,80 +111,81 @@ public class FastCRules {
 
     private void parseRow(ArrayList<String> cells) {
         double score = 0d;
-        if (cells.size() > 1)
-            score = Double.parseDouble(cells.get(1));
-        if (cells.size() < 3)
-            System.out.println(cells);
-        String determinant = cells.get(2).trim();
-        char[] rule = cells.get(0).toCharArray();
-        addRule(rule, Determinants.valueOf(determinant), score);
+        if (cells.size() > 2)
+            score = Double.parseDouble(cells.get(2));
+        if (cells.size() < 4)
+            logger.warning("Rule format error: " + cells);
+        String determinant = cells.get(3).trim();
+        char[] ruleChar = cells.get(1).toCharArray();
+        Rule rule = new Rule(Integer.parseInt(cells.get(0)), cells.get(1), determinant, score, edu.utah.bmi.nlp.core.DeterminantValueSet.Determinants.ACTUAL);
+        addRule(ruleChar, rule);
     }
 
 
     /**
      * Override addRule method
      *
-     * @param rule        A char array of rule
-     * @param determinant Specify which type of rule is this
-     * @param score       Specify the priority score of this rule
+     * @param ruleChar        A char array of rule
+     * @param rule the Rule object of the rule (include chars, rule name, score, and line number)
      * @return true: if the rule is added
      * false: if the rule is a duplicate
      */
     @SuppressWarnings("unchecked")
-    protected boolean addRule(char[] rule, Determinants determinant, double score) {
+    protected boolean addRule(char[] ruleChar, Rule rule) {
 //      use to store the HashMap sub-chain that have the key chain that overlap with the current rule
 //      rule1 to temporally store the hinges of existing HashMap chain that overlap with current rule
         HashMap rule1 = rules;
 //      rule2 to construct the new HashMap sub-chain that doesn't overlap with existing chain
         HashMap rule2 = new HashMap();
-        HashMap rulet = new HashMap();
-        int length = rule.length;
+        HashMap rulet;
+        Determinants determinants=rule.ruleName.equals("stbegin")?Determinants.stbegin:Determinants.stend;
+        int length = ruleChar.length;
         int i = 0;
 
-        while (i < length && rule1 != null && rule1.containsKey(rule[i])) {
-            rule1 = (HashMap) rule1.get(rule[i]);
+        while (i < length && rule1 != null && rule1.containsKey(ruleChar[i])) {
+            rule1 = (HashMap) rule1.get(ruleChar[i]);
             i++;
         }
         // if the rule has been included
-        if (i == length && rule1.containsKey(END) && rule1.get(END) == determinant) {
-            logger.finest("Rule has been included: line " + ruleId + "\t" + rule);
+        if (i == length && rule1.containsKey(END) && rule1.get(END) == determinants) {
+            logger.finest("Rule has been included: line " + ruleId + "\t" + ruleChar);
             return false;
         }
         // start with the determinant, construct the last descendant HashMap
         // <Determinant.end, <Determinant, ruleId>>
         if (i == length) {
             if (rule1.containsKey(END)) {
-                ((HashMap) rule1.get(END)).put(determinant, ruleId);
+                ((HashMap) rule1.get(END)).put(determinants, ruleId);
             } else {
-                rule2.put(determinant, ruleId);
+                rule2.put(determinants, ruleId);
                 rule1.put(END, rule2.clone());
             }
-            setScore(ruleId, score);
+            setScore(ruleId, rule.score);
             if (logger.getLevel() == Level.FINEST) {
-                ruleStore.put(ruleId, new String(rule));
+                ruleStore.put(ruleId, rule);
             }
             ruleId++;
             return true;
         } else {
-            rule2.put(determinant, ruleId);
+            rule2.put(determinants, ruleId);
             rule2.put(END, rule2.clone());
-            rule2.remove(determinant);
+            rule2.remove(determinants);
 
             // filling the HashMap chain which rules doesn't have the key chain
             for (int j = length - 1; j > i; j--) {
                 rulet = (HashMap) rule2.clone();
                 rule2.clear();
-                rule2.put(rule[j], rulet);
+                rule2.put(ruleChar[j], rulet);
             }
         }
 //      map rule to score;
-        setScore(ruleId, score);
+        setScore(ruleId, rule.score);
         if (logger.getLevel() == Level.FINEST) {
-            ruleStore.put(ruleId, new String(rule));
+            ruleStore.put(ruleId, rule);
         }
         ruleId++;
 //        System.out.println("rule length="+rule.length+" \ti="+i);
-        rule1.put(rule[i], rule2.clone());
+        rule1.put(ruleChar[i], rule2.clone());
         return true;
     }
 
@@ -548,7 +550,7 @@ public class FastCRules {
 //		TODO need to fix by using Interval tree
         for (Object key : deterRule.keySet()) {
             int ruleId = deterRule.get(key);
-            logger.finest("\ttry add determinant("+key+") span: " + matchBegin + "-" + matchEnd + "\tmatched rule(" + ruleId + "): " + getRuleString(ruleId) + "\t\t" + getScore(ruleId));
+            logger.finest("\ttry add determinant(" + key + ") span: " + matchBegin + "-" + matchEnd + "\tmatched rule: " + getRule(ruleId));
             double score = getScore(ruleId);
             currentSpan.score = score;
             currentSpan.ruleId = ruleId;
@@ -560,7 +562,7 @@ public class FastCRules {
                 Span lastSpan = currentSpanList.get(currentSpanList.size() - 1);
                 logger.finest("\t\tThe same type of determinant has a previous span: "
                         + lastSpan.getBegin() + "-" + lastSpan.getEnd() +
-                        "\tmatched rule(" + lastSpan.ruleId + "): " + getRuleString(lastSpan.ruleId) + "\t\t" + getScore(lastSpan.ruleId));
+                        "\tmatched rule: " + getRule(lastSpan.ruleId));
 //                  Since there is no directional preference, assume the span is not exclusive within each determinant.
                 if (currentSpan.end <= lastSpan.end) {
                     if (currentSpan.end < lastSpan.begin) {
@@ -568,7 +570,7 @@ public class FastCRules {
                         currentSpanList.add(currentSpan);
                         currentSpanList.add(lastSpan);
                         logger.finest("\t\tThe current span is left to the previous span, add it in.");
-                    }else
+                    } else
                         logger.finest("\t\tThe current span is inside the previous span, skip the current one.");
 //                      if currentSpan is within lastSpan
                     continue;
@@ -587,7 +589,7 @@ public class FastCRules {
                                 " replace with the current one, because the current is wider.");
                         currentSpanList.remove(currentSpanList.size() - 1);
                     }
-                }else{
+                } else {
                     logger.finest("\t\tThe current span is not overlapping with the previous span," +
                             " add the current one.");
                 }
@@ -598,6 +600,55 @@ public class FastCRules {
                 currentSpanList.add(currentSpan);
             matches.put((Determinants) key, currentSpanList);
         }
+    }
+
+    protected void addDeterminants(HashMap rule, HashMap<String, ArrayList<Span>> matches,
+                                   int matchBegin, int matchEnd, int currentPosition) {
+        HashMap<Determinants, Integer> deterRule = (HashMap<Determinants, Integer>) rule.get(END);
+        int end = matchEnd == 0 ? currentPosition : matchEnd;
+        Span currentSpan = new Span(matchBegin + offset, end + offset);
+        logger.finest("Try to addDeterminants: " + currentSpan.begin + ", " + currentSpan.end + "\t" + currentSpan.text);
+        ArrayList<Span> currentSpanList = new ArrayList<Span>();
+        for (Object key : deterRule.keySet()) {
+            int rulePos = deterRule.get(key);
+            double score = getScore(rulePos);
+            currentSpan.ruleId = rulePos;
+            logger.finest("\t\tRule Id: " + rulePos + "\t" + getRule(rulePos).type + "\t" + getRule(rulePos));
+//          If needed, implement your own selection ruleStore and score updating logic below
+            if (matches.containsKey(key)) {
+//              because the ruleStore are all processed at the same time from the input left to the input right,
+//                it becomes more efficient to compare the overlaps
+                currentSpanList = matches.get(key);
+                IntervalST<Integer> overlapChecker = overlapCheckers.get(key);
+
+                Object overlappedPos = overlapChecker.get(new Interval1D(currentSpan.begin, currentSpan.end));
+                if (overlappedPos != null) {
+                    int pos = (int) overlappedPos;
+                    Span overlappedSpan = currentSpanList.get(pos);
+                    logger.finest("\t\tOverlapped with: " + overlappedSpan.begin + ", " + overlappedSpan.end );
+                    if (!compareSpan(currentSpan, overlappedSpan)) {
+                        logger.finest("\t\tSkip this span ...");
+                        continue;
+                    }
+                    currentSpanList.set(pos, currentSpan);
+                    overlapChecker.remove(new Interval1D(overlappedSpan.begin, overlappedSpan.end));
+                    overlapChecker.put(new Interval1D(currentSpan.begin, currentSpan.end), pos);
+                } else {
+                    overlapChecker.put(new Interval1D(currentSpan.begin, currentSpan.end), currentSpanList.size());
+                    currentSpanList.add(currentSpan);
+                }
+            } else {
+                currentSpanList.add(currentSpan);
+                matches.put((String) key, currentSpanList);
+                IntervalST<Integer> overlapChecker = new IntervalST<Integer>();
+                overlapChecker.put(new Interval1D(currentSpan.begin, currentSpan.end), 0);
+                overlapCheckers.put((String) key, overlapChecker);
+            }
+        }
+    }
+
+    public Rule getRule(int pos) {
+        return ruleStore.get(pos);
     }
 
 
@@ -679,11 +730,5 @@ public class FastCRules {
         this.debug = debug;
     }
 
-    public String getRuleString(int ruleId) {
-        if (logger.getLevel() == Level.FINEST && this.ruleStore.containsKey(ruleId)) {
-            return this.ruleStore.get(ruleId);
-        } else {
-            return "";
-        }
-    }
+
 }

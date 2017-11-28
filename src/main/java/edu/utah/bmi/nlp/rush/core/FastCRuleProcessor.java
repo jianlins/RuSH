@@ -69,7 +69,7 @@ public class FastCRuleProcessor {
     }
 
     public String getRuleString(int ruleId) {
-        return fastCRules.getRuleString(ruleId);
+        return fastCRules.getRule(ruleId).rule;
     }
 
 

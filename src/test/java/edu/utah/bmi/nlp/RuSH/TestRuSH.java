@@ -93,4 +93,12 @@ public class TestRuSH {
         printDetails(sentences, input, debug);
     }
 
+
+    @Test
+    public void test4(){
+        String input="Delirium -";
+        ArrayList<Span> sentences = segmenter.segToSentenceSpans(input);
+        input = input.replaceAll("\n", " ");
+        printDetails(sentences, input, debug);
+    }
 }
