@@ -76,12 +76,12 @@ public class RuSH {
         ArrayList<Span> output = new ArrayList<Span>();
         HashMap<Determinants, ArrayList<Span>> result = fcrp.processString(text, DirectionPrefer.none);
 
-        if (logger.getLevel()== Level.FINEST) {
+        if (logger.getLevel().intValue()< Level.FINE.intValue()) {
             text = text.replaceAll("\n", " ");
             for (Map.Entry<Determinants, ArrayList<Span>> ent : result.entrySet()) {
-                logger.finest(ent.getKey().toString());
+                logger.finer(ent.getKey().toString());
                 for (Span span : ent.getValue()) {
-                    logger.finest("\t" + span.begin + "-" + span.end + ":" + span.score + "\t" +
+                    logger.finer("\t" + span.begin + "-" + span.end + ":" + span.score + "\t" +
                             text.substring(0, span.begin) + "<" + text.substring(span.begin, span.begin + 1)
                             + ">\t" + span.ruleId + "\t" + fcrp.getRuleString(span.ruleId));
                 }

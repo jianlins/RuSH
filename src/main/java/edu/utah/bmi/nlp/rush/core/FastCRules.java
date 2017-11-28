@@ -544,9 +544,11 @@ public class FastCRules {
         int end = matchEnd == 0 ? currentPosition - 1 : matchEnd;
         Span currentSpan = new Span(matchBegin, end);
         ArrayList<Span> currentSpanList = new ArrayList<Span>();
-//		TODO need to fix to Interval tree
+
+//		TODO need to fix by using Interval tree
         for (Object key : deterRule.keySet()) {
             int ruleId = deterRule.get(key);
+            logger.finest("\ttry add determinant("+key+") span: " + matchBegin + "-" + matchEnd + "\tmatched rule(" + ruleId + "): " + getRuleString(ruleId) + "\t\t" + getScore(ruleId));
             double score = getScore(ruleId);
             currentSpan.score = score;
             currentSpan.ruleId = ruleId;
@@ -556,14 +558,18 @@ public class FastCRules {
 //                it becomes more efficient to compare the overlaps
                 currentSpanList = matches.get(key);
                 Span lastSpan = currentSpanList.get(currentSpanList.size() - 1);
-
+                logger.finest("\t\tThe same type of determinant has a previous span: "
+                        + lastSpan.getBegin() + "-" + lastSpan.getEnd() +
+                        "\tmatched rule(" + lastSpan.ruleId + "): " + getRuleString(lastSpan.ruleId) + "\t\t" + getScore(lastSpan.ruleId));
 //                  Since there is no directional preference, assume the span is not exclusive within each determinant.
                 if (currentSpan.end <= lastSpan.end) {
                     if (currentSpan.end < lastSpan.begin) {
                         currentSpanList.remove(currentSpanList.size() - 1);
                         currentSpanList.add(currentSpan);
                         currentSpanList.add(lastSpan);
-                    }
+                        logger.finest("\t\tThe current span is left to the previous span, add it in.");
+                    }else
+                        logger.finest("\t\tThe current span is inside the previous span, skip the current one.");
 //                      if currentSpan is within lastSpan
                     continue;
                 } else if (lastSpan.end >= currentSpan.begin) {
@@ -573,10 +579,17 @@ public class FastCRules {
                         continue;
                     } else {
                         if (!compareSpan(currentSpan, lastSpan)) {
+                            logger.finest("\t\tThe current span is overlapping with the previous span," +
+                                    " skip the current one, because the previous is wider.");
                             continue;
                         }
+                        logger.finest("\t\tThe current span is overlapping with the previous span," +
+                                " replace with the current one, because the current is wider.");
                         currentSpanList.remove(currentSpanList.size() - 1);
                     }
+                }else{
+                    logger.finest("\t\tThe current span is not overlapping with the previous span," +
+                            " add the current one.");
                 }
                 currentSpanList.add(currentSpan);
 
