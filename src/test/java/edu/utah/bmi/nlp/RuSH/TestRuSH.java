@@ -28,7 +28,7 @@ import java.util.ArrayList;
  */
 public class TestRuSH {
     private RuSH segmenter;
-    private boolean debug = false;
+    private boolean debug = true;
 
     public static void printDetails(ArrayList<Span> sentences, String input, boolean debug) {
         if (debug) {
@@ -48,6 +48,7 @@ public class TestRuSH {
 //        segmenter = new RuSH("conf/rush_rules.xlsx");
 
         segmenter = new RuSH(this.getClass().getClassLoader().getResource("mimic.tsv").getPath());
+//        segmenter = new RuSH("conf/rush_rules.xlsx");
         segmenter.setDebug(debug);
         segmenter.setSpecialCharacterSupport(true);
     }
@@ -96,7 +97,14 @@ public class TestRuSH {
 
     @Test
     public void test4(){
-        String input="Delirium -";
+        String input="Delirium - ";
+        ArrayList<Span> sentences = segmenter.segToSentenceSpans(input);
+        input = input.replaceAll("\n", " ");
+        printDetails(sentences, input, debug);
+    }
+    @Test
+    public void test5(){
+        String input="The patient complained about the TIA \n\n No memory issues. \"I \n\nOrdered the MRI scan.- ";
         ArrayList<Span> sentences = segmenter.segToSentenceSpans(input);
         input = input.replaceAll("\n", " ");
         printDetails(sentences, input, debug);

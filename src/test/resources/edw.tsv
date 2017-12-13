@@ -505,7 +505,7 @@ Heart\nFailure	3	stend
  had\s+\n+	3	stend
  have\s+\n+	3	stend
  has\s+\n+	3	stend
- "I\s+\n\n	3	stend
+ \"I\s+\n\n	3	stend
  I\s+\n\n	3	stend
 \(\C+\s+\n\n	3	stend
 \(\c+\s+\n\n	3	stend

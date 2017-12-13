@@ -17,18 +17,15 @@
 
 package edu.utah.bmi.nlp.rush.core;
 
+import edu.utah.bmi.nlp.core.IOUtil;
 import edu.utah.bmi.nlp.core.Span;
 import edu.utah.bmi.nlp.rush.core.DeterminantValueSet.Determinants;
 import edu.utah.bmi.nlp.rush.core.DeterminantValueSet.DirectionPrefer;
-import edu.utah.bmi.nlp.rush.uima.RuSH_AE;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 /**
@@ -36,7 +33,7 @@ import java.util.logging.Logger;
  */
 public class RuSH {
 
-    public static Logger logger = Logger.getLogger(RuSH.class.getCanonicalName());
+    public static Logger logger = IOUtil.getLogger(RuSH.class);
     protected static FastCRuleProcessor fcrp;
     protected static Determinants begin, end;
     @Deprecated
@@ -48,15 +45,6 @@ public class RuSH {
     }
 
     public void initiate(String rule) {
-        if (System.getProperty("java.util.logging.config.file") == null &&
-                new File("logging.properties").exists()) {
-            System.setProperty("java.util.logging.config.file", "logging.properties");
-        }
-        try {
-            LogManager.getLogManager().readConfiguration();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         fcrp = new FastCRuleProcessor(rule);
         fcrp.setReplicationSupport(true);
 
@@ -76,7 +64,7 @@ public class RuSH {
         ArrayList<Span> output = new ArrayList<Span>();
         HashMap<Determinants, ArrayList<Span>> result = fcrp.processString(text, DirectionPrefer.none);
 
-        if (logger.getLevel().intValue()< Level.FINE.intValue()) {
+        if (logger.isLoggable(Level.FINE)) {
             text = text.replaceAll("\n", " ");
             for (Map.Entry<Determinants, ArrayList<Span>> ent : result.entrySet()) {
                 logger.finer(ent.getKey().toString());

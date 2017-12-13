@@ -15,10 +15,7 @@
  *******************************************************************************/
 package edu.utah.bmi.nlp.rush.uima;
 
-import edu.utah.bmi.nlp.core.DeterminantValueSet;
-import edu.utah.bmi.nlp.core.SimpleParser;
-import edu.utah.bmi.nlp.core.Span;
-import edu.utah.bmi.nlp.core.WildCardChecker;
+import edu.utah.bmi.nlp.core.*;
 import edu.utah.bmi.nlp.rush.core.RuSH;
 import edu.utah.bmi.nlp.uima.common.AnnotationOper;
 import org.apache.uima.UimaContext;
@@ -47,7 +44,7 @@ import static java.lang.Character.isDigit;
  */
 public class RuSH_AE extends JCasAnnotator_ImplBase {
 
-    public static Logger logger = Logger.getLogger(RuSH_AE.class.getCanonicalName());
+    public static Logger logger = IOUtil.getLogger(RuSH_AE.class);
     protected RuSH seg;
     protected boolean autoFixGaps = true;
 

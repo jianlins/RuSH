@@ -241,22 +241,22 @@
 
 \c)\w+\d\)	2	stend
 \c)\w+\d\d\)	2	stend
-\(\a+\w+\a+\)	3	stend
-\c\c)\w+\d\d\),	3	stend
-\c\c)\w+\d\),	3	stend
-\c\c)\w+\d\).	3	stend
-\c\c)\w+\d\d\).	3	stend
-from \d+ to \d+	3	stend
+\(\a+\w+\a+\)	3	stend	PSEUDO
+\c\c)\w+\d\d\),	3	stend	PSEUDO
+\c\c)\w+\d\),	3	stend	PSEUDO
+\c\c)\w+\d\).	3	stend	PSEUDO
+\c\c)\w+\d\d\).	3	stend	PSEUDO
+from \d+ to \d+	3	stend	PSEUDO
 
-\C\C)\w+\d\d\),	3	stend
-\C\C)\w+\d\),	3	stend
-\C\C)\w+\d\).	3	stend
-\C\C)\w+\d\d\).	3	stend
+\C\C)\w+\d\d\),	3	stend	PSEUDO
+\C\C)\w+\d\),	3	stend	PSEUDO
+\C\C)\w+\d\).	3	stend	PSEUDO
+\C\C)\w+\d\d\).	3	stend	PSEUDO
 
 \C(\C)\w+\d\)	2	stend
 \C(\C)\w+\d\d\)	2	stend
-\(\C+\s+\d\d\)	3	stend
-\(\c+\s+\d\d\)	3	stend
+\(\C+\s+\d\d\)	3	stend	PSEUDO
+\(\c+\s+\d\d\)	3	stend	PSEUDO
 \d(%)\w+\d\)	2	stend
 \d(%)\w+\d\d\)	2	stend
 \d)\w+\d\)	2	stend
@@ -390,107 +390,107 @@ from \d+ to \d+	3	stend
 \p\s+\e	2	stend
 \d\s+\e	2	stend
 
-\b\d(.)\s+\C	3	stend
-\n\d+(.)\s+\C	3	stend
-\d+.\C+(:)\s+\n	3	stend
-Mrs(.) 	3	stend
-Miss(.) 	3	stend
-Mr(.) 	3	stend
-Ms(.) 	3	stend
-\c\n+\c	3	stend
-\c\n+\s+\c	3	stend
-\c\s+\n+\c	3	stend
-\c\s+\n+\s+\c	3	stend
+\b\d(.)\s+\C	3	stend	PSEUDO
+\n\d+(.)\s+\C	3	stend	PSEUDO
+\d+.\C+(:)\s+\n	3	stend	PSEUDO
+Mrs(.) 	3	stend	PSEUDO
+Miss(.) 	3	stend	PSEUDO
+Mr(.) 	3	stend	PSEUDO
+Ms(.) 	3	stend	PSEUDO
+\c\n+\c	3	stend	PSEUDO
+\c\n+\s+\c	3	stend	PSEUDO
+\c\s+\n+\c	3	stend	PSEUDO
+\c\s+\n+\s+\c	3	stend	PSEUDO
 
-,\w+\c\c	3	stend
-,\n\w+\c\c	3	stend
-,\w+\c\c	3	stend
-,\w+\d+ 	3	stend
-,\n\w+\d+ 	3	stend
-,\w+\d+ 	3	stend
-;\w+\c\c	3	stend
+,\w+\c\c	3	stend	PSEUDO
+,\n\w+\c\c	3	stend	PSEUDO
+,\w+\c\c	3	stend	PSEUDO
+,\w+\d+ 	3	stend	PSEUDO
+,\n\w+\d+ 	3	stend	PSEUDO
+,\w+\d+ 	3	stend	PSEUDO
+;\w+\c\c	3	stend	PSEUDO
 
-\)\w+\c\c	3	stend
-\)\n\w+\c\c	3	stend
-\)\w+\d 	3	stend
-\)\n\w+\d+ 	3	stend
-\)\w+\d 	3	stend
+\)\w+\c\c	3	stend	PSEUDO
+\)\n\w+\c\c	3	stend	PSEUDO
+\)\w+\d 	3	stend	PSEUDO
+\)\n\w+\d+ 	3	stend	PSEUDO
+\)\w+\d 	3	stend	PSEUDO
 \c)\s+\d+\)\s+\d+\s+.	2	stend
 \d+\s+.\s+(\C	0	stbegin
 
-\s+\C(\C)\w+\c\c	3	stend
-\s+\C\C(\C)\w+\c\c	3	stend
-\s+\C\C\C(\C)\w+\c\c	3	stend
+\s+\C(\C)\w+\c\c	3	stend	PSEUDO
+\s+\C\C(\C)\w+\c\c	3	stend	PSEUDO
+\s+\C\C\C(\C)\w+\c\c	3	stend	PSEUDO
 
-A\w+\c\c	3	stend
-A\n\w+\c\c	3	stend
-A\w+\c\c	3	stend
-A\w+\d+ 	3	stend
-A\n\w+\d+ 	3	stend
-A\w+\d+ 	3	stend
+A\w+\c\c	3	stend	PSEUDO
+A\n\w+\c\c	3	stend	PSEUDO
+A\w+\c\c	3	stend	PSEUDO
+A\w+\d+ 	3	stend	PSEUDO
+A\n\w+\d+ 	3	stend	PSEUDO
+A\w+\d+ 	3	stend	PSEUDO
 
-\d+)\w+week	3	stend
-\d+)\w+month	3	stend
-\d+)\w+\day	3	stend
-\d+)\w+year	3	stend
-\d+)\w+cm 	3	stend
-\d+)\w+m 	3	stend
-\d+)\w+mg 	3	stend
-\d+)\w+g 	3	stend
-\d+)\w+kg 	3	stend
-\d+)\w+lb 	3	stend
-\d+)\w+feet 	3	stend
-\d+)\w+inch 	3	stend
-\d+)\w+ml 	3	stend
-\d+)\w+ou 	3	stend
-\d+)\w+ounce 	3	stend
-\d+)\w+total dose	3	stend
-\d+)\w+dose	3	stend
-\d+)\w+tablet	3	stend
+\d+)\w+week	3	stend	PSEUDO
+\d+)\w+month	3	stend	PSEUDO
+\d+)\w+\day	3	stend	PSEUDO
+\d+)\w+year	3	stend	PSEUDO
+\d+)\w+cm 	3	stend	PSEUDO
+\d+)\w+m 	3	stend	PSEUDO
+\d+)\w+mg 	3	stend	PSEUDO
+\d+)\w+g 	3	stend	PSEUDO
+\d+)\w+kg 	3	stend	PSEUDO
+\d+)\w+lb 	3	stend	PSEUDO
+\d+)\w+feet 	3	stend	PSEUDO
+\d+)\w+inch 	3	stend	PSEUDO
+\d+)\w+ml 	3	stend	PSEUDO
+\d+)\w+ou 	3	stend	PSEUDO
+\d+)\w+ounce 	3	stend	PSEUDO
+\d+)\w+total dose	3	stend	PSEUDO
+\d+)\w+dose	3	stend	PSEUDO
+\d+)\w+tablet	3	stend	PSEUDO
 
 #start with number + units
-\c\n+\d+\s+\c\c	3	stend
-\c\n+\s+\d+\s+\c\c	3	stend
-\c\s+\n+\d+\s+\c\c	3	stend
-\c\s+\n+\d+\s+\s+\c\c	3	stend
+\c\n+\d+\s+\c\c	3	stend	PSEUDO
+\c\n+\s+\d+\s+\c\c	3	stend	PSEUDO
+\c\s+\n+\d+\s+\c\c	3	stend	PSEUDO
+\c\s+\n+\d+\s+\s+\c\c	3	stend	PSEUDO
 #start with float + units
-\c\n+\d+.\d+\s+\c\c	3	stend
-\c\n+\s+\d+.\d+\s+\c\c	3	stend
-\c\s+\n+\d+.\d+\s+\c\c	3	stend
-\c\s+\n+\d+.\d+\s+\s+\c\c	3	stend
+\c\n+\d+.\d+\s+\c\c	3	stend	PSEUDO
+\c\n+\s+\d+.\d+\s+\c\c	3	stend	PSEUDO
+\c\s+\n+\d+.\d+\s+\c\c	3	stend	PSEUDO
+\c\s+\n+\d+.\d+\s+\s+\c\c	3	stend	PSEUDO
 
-are:\s+\n+\c	3	stend
-\sis:\s+\n+\c	3	stend
-was:\s+\n+\c	3	stend
-were:\s+\n+\c	3	stend
-are:\n+\c	3	stend
-\sis:\n+\c	3	stend
-was:\n+\c	3	stend
-were:\n+\c	3	stend
-are:\n+\s+\c	3	stend
-\sis:\n+\s+\c	3	stend
-was:\n+\s+\c	3	stend
-were:\n+\s+\c	3	stend
-are:\s+\n+\s+\c	3	stend
-\sis:\s+\n+\s+\c	3	stend
-was:\s+\n+\s+\c	3	stend
-were:\s+\n+\s+\c	3	stend
-#:\n+\c)+	3	stend
-#:\s+\n+\c\c	3	stend
-#:\n+\s+\c\c	3	stend
-#:\s+\n+\s+\c\c	3	stend
-\spulm.	3	stend
+are:\s+\n+\c	3	stend	PSEUDO
+\sis:\s+\n+\c	3	stend	PSEUDO
+was:\s+\n+\c	3	stend	PSEUDO
+were:\s+\n+\c	3	stend	PSEUDO
+are:\n+\c	3	stend	PSEUDO
+\sis:\n+\c	3	stend	PSEUDO
+was:\n+\c	3	stend	PSEUDO
+were:\n+\c	3	stend	PSEUDO
+are:\n+\s+\c	3	stend	PSEUDO
+\sis:\n+\s+\c	3	stend	PSEUDO
+was:\n+\s+\c	3	stend	PSEUDO
+were:\n+\s+\c	3	stend	PSEUDO
+are:\s+\n+\s+\c	3	stend	PSEUDO
+\sis:\s+\n+\s+\c	3	stend	PSEUDO
+was:\s+\n+\s+\c	3	stend	PSEUDO
+were:\s+\n+\s+\c	3	stend	PSEUDO
+#:\n+\c)+	3	stend	PSEUDO
+#:\s+\n+\c\c	3	stend	PSEUDO
+#:\n+\s+\c\c	3	stend	PSEUDO
+#:\s+\n+\s+\c\c	3	stend	PSEUDO
+\spulm.	3	stend	PSEUDO
 
- mL\n+\c)+	3	stend
- mL\s+\n+\c\c	3	stend
- mL\n+\s+\c\c	3	stend
- mL\s+\n+\s+\c\c	3	stend
+ mL\n+\c)+	3	stend	PSEUDO
+ mL\s+\n+\c\c	3	stend	PSEUDO
+ mL\n+\s+\c\c	3	stend	PSEUDO
+ mL\s+\n+\s+\c\c	3	stend	PSEUDO
 
 
  \n\n\n+ •  	2	stend
 \s+\n\n+\s+\C	2	stend
-\d+.\s+\C+(:\s+\n\n+\s+\C\c+\s+\d+.	3	stend
-\d+.\s+\C\c+(:\s+\n\n+\s+\C\c+\s+\d+.	3	stend
+\d+.\s+\C+(:\s+\n\n+\s+\C\c+\s+\d+.	3	stend	PSEUDO
+\d+.\s+\C\c+(:\s+\n\n+\s+\C\c+\s+\d+.	3	stend	PSEUDO
 \a\w+_______________	2	stend
 \a(\p)\w+_______________	2	stend
 (\c)\n- \c	2	stend
@@ -498,17 +498,17 @@ were:\s+\n+\s+\c	3	stend
 \c.(")\s+\C	2	stend
 \c."\s+(\C	0	stbegin
 
-Heart\nFailure	3	stend
- and\s+\n\n	3	stend
- that\s+\n\n	3	stend
- for\s+\n+	3	stend
- had\s+\n+	3	stend
- have\s+\n+	3	stend
- has\s+\n+	3	stend
- "I\s+\n\n	3	stend
- I\s+\n\n	3	stend
-\(\C+\s+\n\n	3	stend
-\(\c+\s+\n\n	3	stend
+Heart\nFailure	3	stend	PSEUDO
+ and\s+\n\n	3	stend	PSEUDO
+ that\s+\n\n	3	stend	PSEUDO
+ for\s+\n+	3	stend	PSEUDO
+ had\s+\n+	3	stend	PSEUDO
+ have\s+\n+	3	stend	PSEUDO
+ has\s+\n+	3	stend	PSEUDO
+ \"I\s+\n\n	3	stend	PSEUDO
+ I\s+\n\n	3	stend	PSEUDO
+\(\C+\s+\n\n	3	stend	PSEUDO
+\(\c+\s+\n\n	3	stend	PSEUDO
 \n(rhabdomyolysis:\n	0	stbegin
 .\s+\n+(\c+\s+\c+\s+\c+\s+\c+:\n	0	stbegin
 .\s+\n+(\c+\s+\c+\s+\c+:\n	0	stbegin
@@ -678,7 +678,7 @@ F)INDINGS:	0	stbegin
 \c(?)\w+	2	stend
 \C(?)\w+	2	stend
 \d(?)\w+	2	stend
-:\w+(?\w+	3	stend
+:\w+(?\w+	3	stend	PSEUDO
 
 
 D(.)\s+\n+\d+.\s+\C	2	stend
@@ -721,7 +721,7 @@ Instructions(:\n+\a	2	stend
 Instructions:\n+(\a	0	stbegin
 \n+(Follow	0	stbegin
 \a)\w+\n+Follow	2	stend
-\d+\s+\n+total dose	3	stend
+\d+\s+\n+total dose	3	stend	PSEUDO
 \a)\n+\C\c+:	2	stend
 \a\n+(\C\c+:	0	stbegin
 \a)\n+\C\C+:	2	stend
@@ -779,7 +779,7 @@ Instructions:\n+(\a	0	stbegin
 \c(.)\s+-\s+\C	2	stend
 \c\s+(-)\s+\C	0	stbegin
 \c\s+-\s+\C	2	stend
-\C\c+\s+-\s+\C\c+	3	stend
+\C\c+\s+-\s+\C\c+	3	stend	PSEUDO
 \C\c+(:)\s+\n+\c	2	stend
 \C\c+:\s+\n+(\c	0	stbegin
 \C\c+:\n+\s+(\c	0	stbegin
@@ -787,10 +787,10 @@ Instructions:\n+(\a	0	stbegin
 \C\c+:\n+(\c	0	stbegin
 \C\C\C:\n+(\c	0	stbegin
 \C\C\C\):\n+(\c	0	stbegin
-\sand)\s+\n+\C	3	stend
-\sand)\s+\n+\c	3	stend
-\sand)\n+\C	3	stend
-\sand)\n+\c	3	stend
+\sand)\s+\n+\C	3	stend	PSEUDO
+\sand)\s+\n+\c	3	stend	PSEUDO
+\sand)\n+\C	3	stend	PSEUDO
+\sand)\n+\c	3	stend	PSEUDO
 
 
 
@@ -822,27 +822,27 @@ Instructions:\n+(\a	0	stbegin
 \a+\)\s+\n+\s+\c\c+:	2	stend
 \c\n+\c\c+:	2	stend
 
-On)\n+\d\d\d\d-\d\d-\d\d\s\s\s+	3	stend
-On)\s+\n+\d\d\d\d-\d\d-\d\d\s\s\s+	3	stend
-on)\n+\d\d\d\d-\d\d-\d\d\s\s\s+	3	stend
-on)\s+\n+\d\d\d\d-\d\d-\d\d\s\s\s+	3	stend
-by)\n+\d\d\d\d-\d\d-\d\d\s\s\s+	3	stend
-by)\s+\n+\d\d\d\d-\d\d-\d\d\s\s\s+	3	stend
-since)\n+\d\d\d\d-\d\d-\d\d\s\s\s+	3	stend
-since)\s+\n+\d\d\d\d-\d\d-\d\d\s\s\s+	3	stend
-Since)\n+\d\d\d\d-\d\d-\d\d\s\s\s+	3	stend
-Since)\s+\n+\d\d\d\d-\d\d-\d\d\s\s\s+	3	stend
+On)\n+\d\d\d\d-\d\d-\d\d\s\s\s+	3	stend	PSEUDO
+On)\s+\n+\d\d\d\d-\d\d-\d\d\s\s\s+	3	stend	PSEUDO
+on)\n+\d\d\d\d-\d\d-\d\d\s\s\s+	3	stend	PSEUDO
+on)\s+\n+\d\d\d\d-\d\d-\d\d\s\s\s+	3	stend	PSEUDO
+by)\n+\d\d\d\d-\d\d-\d\d\s\s\s+	3	stend	PSEUDO
+by)\s+\n+\d\d\d\d-\d\d-\d\d\s\s\s+	3	stend	PSEUDO
+since)\n+\d\d\d\d-\d\d-\d\d\s\s\s+	3	stend	PSEUDO
+since)\s+\n+\d\d\d\d-\d\d-\d\d\s\s\s+	3	stend	PSEUDO
+Since)\n+\d\d\d\d-\d\d-\d\d\s\s\s+	3	stend	PSEUDO
+Since)\s+\n+\d\d\d\d-\d\d-\d\d\s\s\s+	3	stend	PSEUDO
 
 \a)\s+**+\s+\n\n	2	stend
 \a)\s+**+\n\n	2	stend
 
 \a(\a)\n+\d\).\s+\C	2	stend
-\a\n+\d\)(.)\s+\C	3	stend
+\a\n+\d\)(.)\s+\C	3	stend	PSEUDO
 \C\C\n+(\d\).\s+\C	0	stbegin
 \c.\n+(\d\).\s+\C	0	stbegin
 \C\C.\n+(\d\).\s+\C	0	stbegin
 \c.\s+\n+(\d)\).\s+\C	0	stbegin
-.\s+\n+\d\)(.)\s+\C	3	stend
+.\s+\n+\d\)(.)\s+\C	3	stend	PSEUDO
 
 
 \a\n+(\d)\d-\d\d\s+	0	stbegin
@@ -862,48 +862,48 @@ Since)\s+\n+\d\d\d\d-\d\d-\d\d\s\s\s+	3	stend
 \w+(D)ate of Birth:	0	stbegin
 
 \c:\s+\n(\a	0	stbegin
-\sDr(.)\s	3	stend
-\sMr(.)\s	3	stend
-\sMrs(.)\s	3	stend
-\sMs(.)\s	3	stend
-\sth(e)\n\C\c+	3	stend
-\sTh(e)\n\C\c+	3	stend
-\si(n)\n\a+	3	stend
-\sI(n)\n\a+	3	stend
-\sfo(r)\n\a+	3	stend
-\sby(\n)\a+	3	stend
-\shis(\n)\a+	3	stend
-\sher(\n)\a+	3	stend
-\swith(\n)\a+	3	stend
-\son(\n)\a+	3	stend
-\sOn(\n)\a+	3	stend
-\suntil(\n)\a+	3	stend
-\sUntil(\n)\a+	3	stend
-\sof(\n)\a+	3	stend
-\sthrough(\n)\a+	3	stend
-\sand(\n)\a+	3	stend
-\sor(\n)\a+	3	stend
-\sas(\n)\a+	3	stend
-\sincluding(\n)\a+	3	stend
+\sDr(.)\s	3	stend	PSEUDO
+\sMr(.)\s	3	stend	PSEUDO
+\sMrs(.)\s	3	stend	PSEUDO
+\sMs(.)\s	3	stend	PSEUDO
+\sth(e)\n\C\c+	3	stend	PSEUDO
+\sTh(e)\n\C\c+	3	stend	PSEUDO
+\si(n)\n\a+	3	stend	PSEUDO
+\sI(n)\n\a+	3	stend	PSEUDO
+\sfo(r)\n\a+	3	stend	PSEUDO
+\sby(\n)\a+	3	stend	PSEUDO
+\shis(\n)\a+	3	stend	PSEUDO
+\sher(\n)\a+	3	stend	PSEUDO
+\swith(\n)\a+	3	stend	PSEUDO
+\son(\n)\a+	3	stend	PSEUDO
+\sOn(\n)\a+	3	stend	PSEUDO
+\suntil(\n)\a+	3	stend	PSEUDO
+\sUntil(\n)\a+	3	stend	PSEUDO
+\sof(\n)\a+	3	stend	PSEUDO
+\sthrough(\n)\a+	3	stend	PSEUDO
+\sand(\n)\a+	3	stend	PSEUDO
+\sor(\n)\a+	3	stend	PSEUDO
+\sas(\n)\a+	3	stend	PSEUDO
+\sincluding(\n)\a+	3	stend	PSEUDO
 
 
-Cardiac\w+Surgery\w+Intensive\w+Care\w+Unit	3	stend
-Intensive\w+Care\w+Unit	3	stend
-Emergency\w+Department	3	stend
-Coronary\w+Care\w+Unit	3	stend
+Cardiac\w+Surgery\w+Intensive\w+Care\w+Unit	3	stend	PSEUDO
+Intensive\w+Care\w+Unit	3	stend	PSEUDO
+Emergency\w+Department	3	stend	PSEUDO
+Coronary\w+Care\w+Unit	3	stend	PSEUDO
 
 \a)*\n\n	2	stend
 \a)*\n\d\d+.\s\C	2	stend
 \a)*\n\d.\s\C	2	stend
 
 #include this title in sentence to improve experiencer context
-#Family Histor(y:	3	stend
-#FAMILY HISTOR(Y:	3	stend
-#FAMILY HISTOR(Y:	3	stend
-#FAMILY MEDICAL HISTOR(Y:	3	stend
-#Family Medical Histor(y:	3	stend
-#Family H(x:	3	stend
-#FAMILY H(X:	3	stend
+#Family Histor(y:	3	stend	PSEUDO
+#FAMILY HISTOR(Y:	3	stend	PSEUDO
+#FAMILY HISTOR(Y:	3	stend	PSEUDO
+#FAMILY MEDICAL HISTOR(Y:	3	stend	PSEUDO
+#Family Medical Histor(y:	3	stend	PSEUDO
+#Family H(x:	3	stend	PSEUDO
+#FAMILY H(X:	3	stend	PSEUDO
 
 
 \a)\w+___+	2	stend

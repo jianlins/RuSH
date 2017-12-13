@@ -54,9 +54,9 @@ import static java.lang.Character.*;
  */
 @SuppressWarnings("rawtypes")
 public class FastCRules {
-    public static Logger logger = Logger.getLogger(RuSH.class.getCanonicalName());
+    public static Logger logger = IOUtil.getLogger(RuSH.class);
     //  other  fields are defined in abstract class
-    protected HashMap<Integer, Double> scores = new HashMap<Integer, Double>();
+    protected HashMap<Integer, Double> scores = new HashMap<>();
     protected HashMap<Integer, Rule> ruleStore = new HashMap<>();
     protected int ruleId = 0;
     protected final Determinants END = Determinants.END;
@@ -67,7 +67,7 @@ public class FastCRules {
     protected boolean debug = true;
 
     protected int offset = 0;
-    protected HashMap<String, IntervalST> overlapCheckers = new HashMap<>();
+    protected HashMap<Determinants, IntervalST> overlapCheckers = new HashMap<>();
 
     protected HashMap rules = new HashMap();
     protected Pattern pdigit;
@@ -117,7 +117,14 @@ public class FastCRules {
             logger.warning("Rule format error: " + cells);
         String determinant = cells.get(3).trim();
         char[] ruleChar = cells.get(1).toCharArray();
-        Rule rule = new Rule(Integer.parseInt(cells.get(0)), cells.get(1), determinant, score, edu.utah.bmi.nlp.core.DeterminantValueSet.Determinants.ACTUAL);
+        edu.utah.bmi.nlp.core.DeterminantValueSet.Determinants value = edu.utah.bmi.nlp.core.DeterminantValueSet.Determinants.ACTUAL;
+        if (cells.size() < 5) {
+            if (score % 2 != 0)
+                value = edu.utah.bmi.nlp.core.DeterminantValueSet.Determinants.PSEUDO;
+        } else {
+            value = edu.utah.bmi.nlp.core.DeterminantValueSet.Determinants.valueOf(cells.get(4).trim());
+        }
+        Rule rule = new Rule(Integer.parseInt(cells.get(0)), cells.get(1), determinant, score, value);
         addRule(ruleChar, rule);
     }
 
@@ -125,8 +132,8 @@ public class FastCRules {
     /**
      * Override addRule method
      *
-     * @param ruleChar        A char array of rule
-     * @param rule the Rule object of the rule (include chars, rule name, score, and line number)
+     * @param ruleChar A char array of rule
+     * @param rule     the Rule object of the rule (include chars, rule name, score, and line number)
      * @return true: if the rule is added
      * false: if the rule is a duplicate
      */
@@ -138,7 +145,7 @@ public class FastCRules {
 //      rule2 to construct the new HashMap sub-chain that doesn't overlap with existing chain
         HashMap rule2 = new HashMap();
         HashMap rulet;
-        Determinants determinants=rule.ruleName.equals("stbegin")?Determinants.stbegin:Determinants.stend;
+        Determinants determinants = rule.ruleName.equals("stbegin") ? Determinants.stbegin : Determinants.stend;
         int length = ruleChar.length;
         int i = 0;
 
@@ -161,7 +168,7 @@ public class FastCRules {
                 rule1.put(END, rule2.clone());
             }
             setScore(ruleId, rule.score);
-            if (logger.getLevel() == Level.FINEST) {
+            if (logger.isLoggable(Level.FINER)) {
                 ruleStore.put(ruleId, rule);
             }
             ruleId++;
@@ -180,7 +187,7 @@ public class FastCRules {
         }
 //      map rule to score;
         setScore(ruleId, rule.score);
-        if (logger.getLevel() == Level.FINEST) {
+        if (logger.isLoggable(Level.FINE)) {
             ruleStore.put(ruleId, rule);
         }
         ruleId++;
@@ -247,7 +254,7 @@ public class FastCRules {
             // if the end of a rule is met
 
             if (rule.containsKey(END)) {
-                addDeterminants(rule, matches, matchBegin, matchEnd, currentPosition, directionPrefer);
+                addDeterminants(rule, matches, matchBegin, matchEnd, currentPosition);
             }
 
 //            if(currentRepeats>0)
@@ -267,10 +274,10 @@ public class FastCRules {
                         directionPrefer, thisChar, false, thisChar);
             }
         } else if (currentPosition == textChars.length && rule.containsKey(END)) {
-            addDeterminants(rule, matches, matchBegin, matchEnd, currentPosition, directionPrefer);
+            addDeterminants(rule, matches, matchBegin, matchEnd, currentPosition);
         } else if (currentPosition == textChars.length && rule.containsKey('\\') && ((HashMap) rule.get('\\')).containsKey('e')) {
             HashMap deterRule = ((HashMap) ((HashMap) rule.get('\\')).get('e'));
-            addDeterminants(deterRule, matches, matchBegin, matchEnd, currentPosition - 1, directionPrefer);
+            addDeterminants(deterRule, matches, matchBegin, matchEnd, currentPosition - 1);
         } else if (currentPosition == textChars.length && rule.containsKey(')')) {
             HashMap deterRule = (HashMap) rule.get(')');
             if (deterRule.containsKey('\\') && ((HashMap) deterRule.get('\\')).containsKey('e'))
@@ -515,94 +522,95 @@ public class FastCRules {
 
     }
 
-    /**
-     * <p>
-     * if reaches the end of one or more rules, add all corresponding
-     * determinants into the results
-     * </p>
-     * <p>
-     * The priority of multiple applicable rules can be modified. This version
-     * uses the following three rules:
-     * 1. if determinant spans overlap, choose the determinant with the widest
-     * span
-     * 2. else if prefer right determinant, choose the determinant with the
-     * largest end.
-     * 3. else if prefer left determinant, choose the determinant with the
-     * smallest begin.
-     * </p>
-     *
-     * @param rule            The constructed rules Map for processing
-     * @param matches         Save the matched string in an ArrayList of Spans
-     * @param matchBegin      Store the beginning position of matching
-     * @param matchEnd        Store the ending position of matching
-     * @param currentPosition Store the current position of matching
-     * @param directionPrefer Specify the preference of directions
-     */
-    @SuppressWarnings("unchecked")
+//    /**
+//     * <p>
+//     * if reaches the end of one or more rules, add all corresponding
+//     * determinants into the results
+//     * </p>
+//     * <p>
+//     * The priority of multiple applicable rules can be modified. This version
+//     * uses the following three rules:
+//     * 1. if determinant spans overlap, choose the determinant with the widest
+//     * span
+//     * 2. else if prefer right determinant, choose the determinant with the
+//     * largest end.
+//     * 3. else if prefer left determinant, choose the determinant with the
+//     * smallest begin.
+//     * </p>
+//     *
+//     * @param rule            The constructed rules Map for processing
+//     * @param matches         Save the matched string in an ArrayList of Spans
+//     * @param matchBegin      Store the beginning position of matching
+//     * @param matchEnd        Store the ending position of matching
+//     * @param currentPosition Store the current position of matching
+//     * @param directionPrefer Specify the preference of directions
+//     */
+//    @SuppressWarnings("unchecked")
+//    protected void addDeterminants(HashMap rule, HashMap<Determinants, ArrayList<Span>> matches,
+//                                   int matchBegin, int matchEnd, int currentPosition,
+//                                   DirectionPrefer directionPrefer) {
+//        HashMap<Determinants, Integer> deterRule = (HashMap<Determinants, Integer>) rule.get(END);
+//        int end = matchEnd == 0 ? currentPosition - 1 : matchEnd;
+//        Span currentSpan = new Span(matchBegin, end);
+//        ArrayList<Span> currentSpanList = new ArrayList<Span>();
+//
+////		TODO need to fix by using Interval tree
+//        for (Object key : deterRule.keySet()) {
+//            int ruleId = deterRule.get(key);
+//            logger.finest("\ttry add determinant(" + key + ") span: " + matchBegin + "-" + matchEnd + "\tmatched rule: " + getRuleString(ruleId));
+//            double score = getScore(ruleId);
+//            currentSpan.score = score;
+//            currentSpan.ruleId = ruleId;
+////          If needed, implement your own selection rules and score updating logic below
+//            if (matches.containsKey(key)) {
+////              because the rules are all processed at the same time from the input left to the input right,
+////                it becomes more efficient to compare the overlaps
+//                currentSpanList = matches.get(key);
+//                Span lastSpan = currentSpanList.get(currentSpanList.size() - 1);
+//                logger.finest("\t\tThe same type of determinant has a previous span: "
+//                        + lastSpan.getBegin() + "-" + lastSpan.getEnd() +
+//                        "\tmatched rule: " + getRule(lastSpan.ruleId));
+////                  Since there is no directional preference, assume the span is not exclusive within each determinant.
+//                if (currentSpan.end <= lastSpan.end) {
+//                    if (currentSpan.end < lastSpan.begin) {
+//                        currentSpanList.remove(currentSpanList.size() - 1);
+//                        currentSpanList.add(currentSpan);
+//                        currentSpanList.add(lastSpan);
+//                        logger.finest("\t\tThe current span is left to the previous span, add it in.");
+//                    } else
+//                        logger.finest("\t\tThe current span is inside the previous span, skip the current one.");
+////                      if currentSpan is within lastSpan
+//                    continue;
+//                } else if (lastSpan.end >= currentSpan.begin) {
+////                      if overlap and current span is has lower priority(wilder by default) than last span
+//                    if (lastSpan.begin >= currentSpan.end) {
+//                        currentSpanList.add(currentSpan);
+//                        continue;
+//                    } else {
+//                        if (!compareSpan(currentSpan, lastSpan)) {
+//                            logger.finest("\t\tThe current span is overlapping with the previous span," +
+//                                    " skip the current one, because the previous is wider.");
+//                            continue;
+//                        }
+//                        logger.finest("\t\tThe current span is overlapping with the previous span," +
+//                                " replace with the current one, because the current is wider.");
+//                        currentSpanList.remove(currentSpanList.size() - 1);
+//                    }
+//                } else {
+//                    logger.finest("\t\tThe current span is not overlapping with the previous span," +
+//                            " add the current one.");
+//                }
+//                currentSpanList.add(currentSpan);
+//
+//            }
+//            if (currentSpanList.size() == 0)
+//                currentSpanList.add(currentSpan);
+//            matches.put((Determinants) key, currentSpanList);
+//        }
+//    }
+
+
     protected void addDeterminants(HashMap rule, HashMap<Determinants, ArrayList<Span>> matches,
-                                   int matchBegin, int matchEnd, int currentPosition,
-                                   DirectionPrefer directionPrefer) {
-        HashMap<Determinants, Integer> deterRule = (HashMap<Determinants, Integer>) rule.get(END);
-        int end = matchEnd == 0 ? currentPosition - 1 : matchEnd;
-        Span currentSpan = new Span(matchBegin, end);
-        ArrayList<Span> currentSpanList = new ArrayList<Span>();
-
-//		TODO need to fix by using Interval tree
-        for (Object key : deterRule.keySet()) {
-            int ruleId = deterRule.get(key);
-            logger.finest("\ttry add determinant(" + key + ") span: " + matchBegin + "-" + matchEnd + "\tmatched rule: " + getRule(ruleId));
-            double score = getScore(ruleId);
-            currentSpan.score = score;
-            currentSpan.ruleId = ruleId;
-//          If needed, implement your own selection rules and score updating logic below
-            if (matches.containsKey(key)) {
-//              because the rules are all processed at the same time from the input left to the input right,
-//                it becomes more efficient to compare the overlaps
-                currentSpanList = matches.get(key);
-                Span lastSpan = currentSpanList.get(currentSpanList.size() - 1);
-                logger.finest("\t\tThe same type of determinant has a previous span: "
-                        + lastSpan.getBegin() + "-" + lastSpan.getEnd() +
-                        "\tmatched rule: " + getRule(lastSpan.ruleId));
-//                  Since there is no directional preference, assume the span is not exclusive within each determinant.
-                if (currentSpan.end <= lastSpan.end) {
-                    if (currentSpan.end < lastSpan.begin) {
-                        currentSpanList.remove(currentSpanList.size() - 1);
-                        currentSpanList.add(currentSpan);
-                        currentSpanList.add(lastSpan);
-                        logger.finest("\t\tThe current span is left to the previous span, add it in.");
-                    } else
-                        logger.finest("\t\tThe current span is inside the previous span, skip the current one.");
-//                      if currentSpan is within lastSpan
-                    continue;
-                } else if (lastSpan.end >= currentSpan.begin) {
-//                      if overlap and current span is has lower priority(wilder by default) than last span
-                    if (lastSpan.begin >= currentSpan.end) {
-                        currentSpanList.add(currentSpan);
-                        continue;
-                    } else {
-                        if (!compareSpan(currentSpan, lastSpan)) {
-                            logger.finest("\t\tThe current span is overlapping with the previous span," +
-                                    " skip the current one, because the previous is wider.");
-                            continue;
-                        }
-                        logger.finest("\t\tThe current span is overlapping with the previous span," +
-                                " replace with the current one, because the current is wider.");
-                        currentSpanList.remove(currentSpanList.size() - 1);
-                    }
-                } else {
-                    logger.finest("\t\tThe current span is not overlapping with the previous span," +
-                            " add the current one.");
-                }
-                currentSpanList.add(currentSpan);
-
-            }
-            if (currentSpanList.size() == 0)
-                currentSpanList.add(currentSpan);
-            matches.put((Determinants) key, currentSpanList);
-        }
-    }
-
-    protected void addDeterminants(HashMap rule, HashMap<String, ArrayList<Span>> matches,
                                    int matchBegin, int matchEnd, int currentPosition) {
         HashMap<Determinants, Integer> deterRule = (HashMap<Determinants, Integer>) rule.get(END);
         int end = matchEnd == 0 ? currentPosition : matchEnd;
@@ -613,7 +621,8 @@ public class FastCRules {
             int rulePos = deterRule.get(key);
             double score = getScore(rulePos);
             currentSpan.ruleId = rulePos;
-            logger.finest("\t\tRule Id: " + rulePos + "\t" + getRule(rulePos).type + "\t" + getRule(rulePos));
+            currentSpan.score=score;
+            logger.finest("\t\tRule Id: " + rulePos + "\t" + getRuleString(rulePos));
 //          If needed, implement your own selection ruleStore and score updating logic below
             if (matches.containsKey(key)) {
 //              because the ruleStore are all processed at the same time from the input left to the input right,
@@ -625,7 +634,7 @@ public class FastCRules {
                 if (overlappedPos != null) {
                     int pos = (int) overlappedPos;
                     Span overlappedSpan = currentSpanList.get(pos);
-                    logger.finest("\t\tOverlapped with: " + overlappedSpan.begin + ", " + overlappedSpan.end );
+                    logger.finest("\t\tOverlapped with: " + overlappedSpan.begin + ", " + overlappedSpan.end + "\t" + getRuleString(overlappedSpan.ruleId));
                     if (!compareSpan(currentSpan, overlappedSpan)) {
                         logger.finest("\t\tSkip this span ...");
                         continue;
@@ -639,10 +648,10 @@ public class FastCRules {
                 }
             } else {
                 currentSpanList.add(currentSpan);
-                matches.put((String) key, currentSpanList);
+                matches.put((Determinants) key, currentSpanList);
                 IntervalST<Integer> overlapChecker = new IntervalST<Integer>();
                 overlapChecker.put(new Interval1D(currentSpan.begin, currentSpan.end), 0);
-                overlapCheckers.put((String) key, overlapChecker);
+                overlapCheckers.put((Determinants) key, overlapChecker);
             }
         }
     }
@@ -651,6 +660,12 @@ public class FastCRules {
         return ruleStore.get(pos);
     }
 
+    public String getRuleString(int pos) {
+        if (ruleStore.containsKey(pos))
+            return ruleStore.get(pos).toString().replaceAll("\n", "\t");
+        else
+            return "";
+    }
 
     public double getScore(int ruleId) {
         return scores.get(ruleId);
