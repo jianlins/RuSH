@@ -24,32 +24,27 @@ import java.util.ArrayList;
 
 /**
  * This rule set are more inclusive that is trying to include all non-whitespace characters in a sentence.
+ *
  * @Author Jianlin Shi
  */
 public class TestRuSH {
     private RuSH segmenter;
-    private boolean debug = true;
 
-    public static void printDetails(ArrayList<Span> sentences, String input, boolean debug) {
-        if (debug) {
-            for (Span sentence : sentences) {
-                System.out.println(sentence.begin + "-" + sentence.end + "\t" + ">" + input.substring(sentence.begin, sentence.end) + "<");
-            }
-            for (int i = 0; i < sentences.size(); i++) {
-                Span sentence = sentences.get(i);
-                System.out.println("assert (sentences.get(" + i + ").begin == " + sentence.begin + " &&" +
-                        " sentences.get(" + i + ").end == " + sentence.end + ");");
-            }
+    public static void printDetails(ArrayList<Span> sentences, String input) {
+        for (int i = 0; i < sentences.size(); i++) {
+            Span sentence = sentences.get(i);
+            System.out.println("assert (sentences.get(" + i + ").begin == " + sentence.begin + " &&" +
+                    " sentences.get(" + i + ").end == " + sentence.end + ");");
         }
+
     }
 
     @Before
     public void initiate() {
-//        segmenter = new RuSH("conf/rush_rules.xlsx");
+        segmenter = new RuSH("conf/rush_rules_v3.xlsx");
 
-        segmenter = new RuSH(this.getClass().getClassLoader().getResource("mimic.tsv").getPath());
+//        segmenter = new RuSH(this.getClass().getClassLoader().getResource("mimic.tsv").getPath());
 //        segmenter = new RuSH("conf/rush_rules.xlsx");
-        segmenter.setDebug(debug);
         segmenter.setSpecialCharacterSupport(true);
     }
 
@@ -59,7 +54,7 @@ public class TestRuSH {
         String input = "Can Mr. K check it. Look\n good.\n";
         ArrayList<Span> sentences = segmenter.segToSentenceSpans(input);
         input = input.replaceAll("\\n", " ");
-        printDetails(sentences, input, debug);
+        printDetails(sentences, input);
         assert (sentences.get(0).begin == 0 && sentences.get(0).end == 19);
         assert (sentences.get(1).begin == 20 && sentences.get(1).end == 31);
 
@@ -70,7 +65,7 @@ public class TestRuSH {
         String input = "S/p C6-7 ACDF. No urgent events overnight. Pain control ON. ";
         ArrayList<Span> sentences = segmenter.segToSentenceSpans(input);
         input = input.replaceAll("\n", " ");
-        printDetails(sentences, input, debug);
+        printDetails(sentences, input);
         assert (sentences.get(0).begin == 0 && sentences.get(0).end == 14);
         assert (sentences.get(1).begin == 15 && sentences.get(1).end == 42);
         assert (sentences.get(2).begin == 43 && sentences.get(2).end == 59);
@@ -79,7 +74,7 @@ public class TestRuSH {
 
     @Test
     public void test3() {
-        String input =" •  Coagulopathy (HCC)    \n" +
+        String input = " •  Coagulopathy (HCC)    \n" +
                 "\n" +
                 "\n" +
                 "\n" +
@@ -91,22 +86,23 @@ public class TestRuSH {
                 "\n";
         ArrayList<Span> sentences = segmenter.segToSentenceSpans(input);
         input = input.replaceAll("\n", " ");
-        printDetails(sentences, input, debug);
+        printDetails(sentences, input);
     }
 
 
     @Test
-    public void test4(){
-        String input="Delirium - ";
+    public void test4() {
+        String input = "Delirium - ";
         ArrayList<Span> sentences = segmenter.segToSentenceSpans(input);
         input = input.replaceAll("\n", " ");
-        printDetails(sentences, input, debug);
+        printDetails(sentences, input);
     }
+
     @Test
-    public void test5(){
-        String input="The patient complained about the TIA \n\n No memory issues. \"I \n\nOrdered the MRI scan.- ";
+    public void test5() {
+        String input = "The patient complained about the TIA \n\n No memory issues. \"I \n\nOrdered the MRI scan.- ";
         ArrayList<Span> sentences = segmenter.segToSentenceSpans(input);
         input = input.replaceAll("\n", " ");
-        printDetails(sentences, input, debug);
+        printDetails(sentences, input);
     }
 }

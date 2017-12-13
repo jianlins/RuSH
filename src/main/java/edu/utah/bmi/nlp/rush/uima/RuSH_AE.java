@@ -44,9 +44,9 @@ import static java.lang.Character.isDigit;
  */
 public class RuSH_AE extends JCasAnnotator_ImplBase {
 
-    public static Logger logger = IOUtil.getLogger(RuSH_AE.class);
-    protected RuSH seg;
-    protected boolean autoFixGaps = true;
+    private static Logger logger = IOUtil.getLogger(RuSH_AE.class);
+    private RuSH seg;
+    private boolean autoFixGaps = true;
 
 
     //	a list of section names that limit the scope of sentence detection
