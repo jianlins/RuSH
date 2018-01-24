@@ -1,5 +1,6 @@
 package edu.utah.bmi.nlp.rush.core;
 
+import edu.utah.bmi.nlp.core.DeterminantValueSet;
 import edu.utah.bmi.nlp.core.IOUtil;
 import edu.utah.bmi.nlp.core.Rule;
 import edu.utah.bmi.nlp.core.Span;
@@ -15,7 +16,7 @@ import java.util.logging.Logger;
 public class RuSH {
     private static Logger logger = IOUtil.getLogger(RuSH.class);
     private static FastCNER fcrp;
-    private static final String begin="stbegin", end="stend";
+    private static final String begin = "stbegin", end = "stend";
     @Deprecated
     protected boolean debug = false;
 
@@ -26,6 +27,20 @@ public class RuSH {
 
     public void initiate(String rule) {
         fcrp = new FastCNER(rule);
+        IOUtil ioUtil = new IOUtil(rule);
+        ArrayList<String> row = ioUtil.getRuleCells().get(0);
+        String lastCell = row.get(row.size() - 1);
+        if (!lastCell.equals("ACTUAL") && !lastCell.equals("PSEUDO"))
+//      compatible to old version rules
+            for (Map.Entry<Integer, Rule> entry : fcrp.fastRule.ruleStore.entrySet()) {
+                int id = entry.getKey();
+                Rule singleRule = entry.getValue();
+                if (singleRule.score % 2 == 0)
+                    singleRule.type = DeterminantValueSet.Determinants.PSEUDO;
+                fcrp.fastRule.ruleStore.put(id, singleRule);
+                fcrp.fastRule.initiate(fcrp.fastRule.ruleStore);
+            }
+
         fcrp.setReplicationSupport(true);
 
         fcrp.setCompareMethod("scorewidth");
@@ -46,10 +61,10 @@ public class RuSH {
             for (Map.Entry<String, ArrayList<Span>> ent : result.entrySet()) {
                 logger.finer(ent.getKey());
                 for (Span span : ent.getValue()) {
-                    Rule rule=fcrp.getRule(span.ruleId);
+                    Rule rule = fcrp.getRule(span.ruleId);
                     logger.finer("\t" + span.begin + "-" + span.end + ":" + span.score + "\t" +
                             text.substring(0, span.begin) + "<" + text.substring(span.begin, span.begin + 1)
-                            + ">\t[Rule " + rule.id+":\t"+rule.rule+"\t"+rule.ruleName+"\t"+rule.score+"\t"+rule.type+"]");
+                            + ">\t[Rule " + rule.id + ":\t" + rule.rule + "\t" + rule.ruleName + "\t" + rule.score + "\t" + rule.type + "]");
                 }
 
             }
@@ -79,7 +94,7 @@ public class RuSH {
                 if (begins.get(i).score == 1 || stBegin < stEnd)
                     continue;
                 sentenceStarted = true;
-            } else if(begins.get(i).begin < stEnd) {
+            } else if (begins.get(i).begin < stEnd) {
                 continue;
             }
             for (int k = j; k < ends.size(); k++) {
@@ -115,9 +130,9 @@ public class RuSH {
                 }
             }
         }
-        if(logger.isLoggable(Level.FINE)){
-            for(Span sentence:output){
-                logger.fine("Sentence("+sentence.begin + "-" + sentence.end + "):\t" + ">" + text.substring(sentence.begin, sentence.end) + "<");
+        if (logger.isLoggable(Level.FINE)) {
+            for (Span sentence : output) {
+                logger.fine("Sentence(" + sentence.begin + "-" + sentence.end + "):\t" + ">" + text.substring(sentence.begin, sentence.end) + "<");
             }
         }
         return output;
