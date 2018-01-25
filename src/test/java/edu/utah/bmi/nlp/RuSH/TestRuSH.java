@@ -105,4 +105,13 @@ public class TestRuSH {
         input = input.replaceAll("\n", " ");
         printDetails(sentences, input);
     }
+
+    @Test
+    public void test6() {
+        String input = "S9%\\. Te";
+        ArrayList<Span> sentences = segmenter.segToSentenceSpans(input);
+        input = input.replaceAll("\n", " ");
+        printDetails(sentences, input);
+    }
+
 }

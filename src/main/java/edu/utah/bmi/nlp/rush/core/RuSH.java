@@ -35,7 +35,7 @@ public class RuSH {
             for (Map.Entry<Integer, Rule> entry : fcrp.fastRule.ruleStore.entrySet()) {
                 int id = entry.getKey();
                 Rule singleRule = entry.getValue();
-                if (singleRule.score % 2 == 0)
+                if (singleRule.score % 2 != 0)
                     singleRule.type = DeterminantValueSet.Determinants.PSEUDO;
                 fcrp.fastRule.ruleStore.put(id, singleRule);
                 fcrp.fastRule.initiate(fcrp.fastRule.ruleStore);
