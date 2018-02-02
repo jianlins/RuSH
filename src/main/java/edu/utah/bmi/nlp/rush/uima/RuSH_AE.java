@@ -17,6 +17,7 @@ package edu.utah.bmi.nlp.rush.uima;
 
 import edu.utah.bmi.nlp.core.*;
 import edu.utah.bmi.nlp.rush.core.RuSH;
+import edu.utah.bmi.nlp.rush.core.SmartChineseCharacterSplitter;
 import edu.utah.bmi.nlp.uima.common.AnnotationOper;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
@@ -33,7 +34,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.logging.Logger;
 
-import static java.lang.Character.isAlphabetic;
 import static java.lang.Character.isDigit;
 
 
@@ -45,7 +45,7 @@ import static java.lang.Character.isDigit;
 public class RuSH_AE extends JCasAnnotator_ImplBase {
 
     private static Logger logger = IOUtil.getLogger(RuSH_AE.class);
-    private RuSH seg;
+    private RuSH rush;
     private boolean autoFixGaps = true;
 
 
@@ -65,6 +65,8 @@ public class RuSH_AE extends JCasAnnotator_ImplBase {
 
     public static final String PARAM_INCLUDE_PUNCTUATION = "IncludePunctuation";
 
+    public static final String PARAM_LANGUAGE = "Language";
+
     @Deprecated
     public static final String PARAM_DEBUG = "Debug";
 
@@ -73,16 +75,16 @@ public class RuSH_AE extends JCasAnnotator_ImplBase {
     protected static Constructor<? extends Annotation> SentenceTypeConstructor, AlterSentenceTypeConstructor, TokenTypeConstructor;
 
 
+    private String mLanguage;
+
     private LinkedHashSet<Class> sectionClasses = new LinkedHashSet<>();
 
     public void initialize(UimaContext cont) {
-
-
         String ruleFileName = (String) (cont
                 .getConfigParameterValue(PARAM_RULE_STR));
-        seg = new RuSH(ruleFileName);
-//        seg.setDebug(true);
-        seg.setSpecialCharacterSupport(true);
+        rush = new RuSH(ruleFileName);
+//        rush.setDebug(true);
+        rush.setSpecialCharacterSupport(true);
         Object autoFixGapsObj = cont.getConfigParameterValue(PARAM_FIX_GAPS);
         if (autoFixGapsObj != null) {
             autoFixGaps = (Boolean) autoFixGapsObj;
@@ -107,6 +109,7 @@ public class RuSH_AE extends JCasAnnotator_ImplBase {
         obj = cont.getConfigParameterValue(PARAM_ALTER_SENTENCE_TYPE_NAME);
         if (obj != null && obj instanceof String) {
             alterSentenceTypeName = ((String) obj).trim();
+            alterSentenceTypeName = checkTypeDomain(alterSentenceTypeName);
             if (alterSentenceTypeName.length() > 0)
                 differentColoring = true;
         }
@@ -114,11 +117,12 @@ public class RuSH_AE extends JCasAnnotator_ImplBase {
         if (obj != null && obj instanceof Boolean && (Boolean) obj != false)
             includePunctuation = true;
 
-        obj = cont.getConfigParameterValue(PARAM_DEBUG);
-        if (obj != null && obj instanceof Boolean && (Boolean) obj != false)
-            seg.setDebug(true);
-        else
-            seg.setDebug(false);
+        obj = cont.getConfigParameterValue(PARAM_LANGUAGE);
+        if (obj != null && obj instanceof String) {
+            mLanguage = ((String) obj).trim().toLowerCase();
+        } else {
+            mLanguage = "en";
+        }
 
         obj = cont.getConfigParameterValue(PARAM_INSIDE_SECTIONS);
         if (obj == null)
@@ -163,54 +167,35 @@ public class RuSH_AE extends JCasAnnotator_ImplBase {
     private void processOneSection(JCas jCas, Annotation section) {
         String text = section.getCoveredText();
         int sectionBegin = section.getBegin();
-        ArrayList<Span> sentences = seg.segToSentenceSpans(text);
-        int previousEnd = 0;
+        ArrayList<Span> sentences = rush.segToSentenceSpans(text);
         for (Span sentence : sentences) {
-            int thisBegin = sentence.begin;
-            if (autoFixGaps) {
-                fixGap(jCas, text, previousEnd, thisBegin, sectionBegin);
+            ArrayList<Span> tokens;
+            if (!rush.tokenRuleEnabled) {
+                switch (mLanguage) {
+                    case "en":
+                        tokens = SimpleParser.tokenizeDecimalSmart(text.substring(sentence.begin, sentence.end), includePunctuation);
+                        saveTokens(jCas, sentence, tokens, sectionBegin);
+                        break;
+                    case "cn":
+                        tokens = SmartChineseCharacterSplitter.tokenizeDecimalSmart(text.substring(sentence.begin, sentence.end), includePunctuation);
+                        saveTokens(jCas, sentence, tokens, sectionBegin);
+                        break;
+                }
             }
-            previousEnd = sentence.end;
-            ArrayList<Span> tokens = SimpleParser.tokenizeDecimalSmart(text.substring(sentence.begin, sentence.end), includePunctuation);
-            saveSentences(jCas, sentence, sectionBegin);
-            saveTokens(jCas, sentence, tokens, sectionBegin);
+            saveSentence(jCas, sentence, sectionBegin);
         }
 
+        if (rush.tokenRuleEnabled) {
+            ArrayList<ArrayList<Span>> tokenss = rush.tokenize(sentences, text);
+            for (ArrayList<Span> tokens : tokenss) {
+                for (Span token : tokens) {
+                    saveToken(jCas, token.begin, token.end, sectionBegin);
+                }
+            }
+        }
 
     }
 
-    /**
-     * If sentences happen to have a gap because of inappropriate rules, fix the gap by add an additional sentence among them.
-     *
-     * @param jcas
-     * @param text
-     * @param previousEnd
-     * @param thisBegin
-     */
-    private void fixGap(JCas jcas, String text, int previousEnd, int thisBegin, int sectionBegin) {
-        int counter = 0, begin = 0, end = 0;
-        char[] gapChars = text.substring(previousEnd, thisBegin).toCharArray();
-        for (int i = 0; i < thisBegin - previousEnd; i++) {
-            char thisChar = gapChars[i];
-            if (isAlphabetic(thisChar) || isDigit(thisChar)) {
-                end = i;
-                counter++;
-                if (begin == 0)
-                    begin = i;
-            } else if (WildCardChecker.isPunctuation(thisChar)) {
-                end = i;
-            }
-        }
-//      An arbitrary number to decide whether the gap is likely to be a sentence or not
-        if (counter > 5) {
-            begin += previousEnd;
-            end = end + previousEnd + 1;
-            Span sentence = new Span(begin, end);
-            ArrayList<Span> tokens = SimpleParser.tokenize2Spans(text.substring(begin, end), includePunctuation);
-            saveSentences(jcas, sentence, sectionBegin);
-            saveTokens(jcas, sentence, tokens, sectionBegin);
-        }
-    }
 
     protected void saveTokens(JCas jcas, Span sentence, ArrayList<Span> tokens, int sectionBegin) {
         int sentBegin = sentence.begin;
@@ -220,13 +205,13 @@ public class RuSH_AE extends JCasAnnotator_ImplBase {
         }
     }
 
-    protected void saveSentences(JCas jcas, Span sentence, int sectionBegin) {
-        saveSentence(jcas, sentence.begin + sectionBegin, sentence.end + sectionBegin);
+    protected void saveSentence(JCas jcas, Span sentence, int offset) {
+        saveSentence(jcas, sentence.begin + offset, sentence.end + offset);
     }
 
 
-    protected void saveToken(JCas jcas, int begin, int end, int sectionBegin) {
-        saveAnnotation(jcas, TokenTypeConstructor, begin + sectionBegin, end + sectionBegin);
+    protected void saveToken(JCas jcas, int begin, int end, int offset) {
+        saveAnnotation(jcas, TokenTypeConstructor, begin + offset, end + offset);
     }
 
     protected void saveSentence(JCas jcas, int begin, int end) {

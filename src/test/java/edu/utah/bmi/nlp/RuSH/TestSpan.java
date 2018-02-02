@@ -47,4 +47,14 @@ public class TestSpan {
 
 
     }
+
+    @Test
+    public void testChar() {
+        String input = "abcd患";
+        for (char ch : input.toCharArray())
+            System.out.println(((((1 << Character.UPPERCASE_LETTER) |
+                    (1 << Character.LOWERCASE_LETTER)
+                    ) >> Character.getType(ch)) & 1)
+                    != 0);
+    }
 }

@@ -71,10 +71,13 @@ public class TestRuSH_AE {
 	@Test
 	public void test2() throws AnalysisEngineProcessException {
 		jCas.reset();
-		jCas.setDocumentText("The patient was treated with IV antibiotics and ventilatory support and at the time of " +
+		String text="The patient was treated with IV antibiotics and ventilatory support and at the time of " +
 				"this dictation, she has recently been taken to the operating room where it was felt that the airway " +
 				"sufficient and she was extubated. She was doing well with good p.o.s, good airway, good voice, and desiring" +
-				" to be discharged home. So, the patient is being prepared for discharge at this point. ");
+				" to be discharged home. So, the patient is being prepared for discharge at this point. ";
+		jCas.setDocumentText(text);
+		SourceDocumentInformation sourceDocumentInformation = new SourceDocumentInformation(jCas, 0, text.length());
+		sourceDocumentInformation.addToIndexes();
 		analysisEngine.process(jCas);
 		testAnalysisEngine.process(jCas);
 	}
