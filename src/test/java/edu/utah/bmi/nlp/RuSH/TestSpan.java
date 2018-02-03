@@ -20,6 +20,8 @@ import org.junit.Test;
 
 import java.util.TreeSet;
 
+import static java.lang.Math.round;
+
 /**
  * @Author Jianlin Shi
  */
@@ -56,5 +58,18 @@ public class TestSpan {
                     (1 << Character.LOWERCASE_LETTER)
                     ) >> Character.getType(ch)) & 1)
                     != 0);
+    }
+
+    @Test
+    public void testFloat(){
+        float a=0.1f, b=0.5f,c=0.6f;
+        System.out.println((int)a);
+        System.out.println((int)b);
+        System.out.println((int)c);
+
+        System.out.println(round(a));
+        System.out.println(round(b));
+        System.out.println(round(c));
+
     }
 }

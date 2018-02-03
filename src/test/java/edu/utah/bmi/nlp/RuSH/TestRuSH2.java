@@ -16,7 +16,7 @@
 package edu.utah.bmi.nlp.RuSH;
 
 import edu.utah.bmi.nlp.core.Span;
-import edu.utah.bmi.nlp.rush.core.RuSH;
+import edu.utah.bmi.nlp.rush.core.RuSH2;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,8 +27,8 @@ import java.util.ArrayList;
  *
  * @Author Jianlin Shi
  */
-public class TestRuSH {
-    private RuSH rush;
+public class TestRuSH2 {
+    private RuSH2 rush2;
 
     public static void printDetails(ArrayList<Span> sentences, String input) {
         for (int i = 0; i < sentences.size(); i++) {
@@ -36,22 +36,24 @@ public class TestRuSH {
             System.out.println("assert (sentences.get(" + i + ").begin == " + sentence.begin + " &&" +
                     " sentences.get(" + i + ").end == " + sentence.end + ");");
         }
+
     }
 
     @Before
     public void initiate() {
-        rush = new RuSH("conf/rush_rules_v3.xlsx");
+        rush2 = new RuSH2("conf/rush_rules_v3.xlsx");
 
-//        rush = new RuSH(this.getClass().getClassLoader().getResource("mimic.tsv").getPath());
-//        rush = new RuSH("conf/rush_rules.xlsx");
-        rush.setSpecialCharacterSupport(true);
+//        rush2 = new RuSH(this.getClass().getClassLoader().getResource("mimic.tsv").getPath());
+//        rush2 = new RuSH("conf/rush_rules.xlsx");
+        rush2.setSpecialCharacterSupport(true);
+        rush2.fillTextInSpan=true;
     }
 
 
     @Test
     public void test1() throws Exception {
         String input = "Can Mr. K check it. Look\n good.\n";
-        ArrayList<Span> sentences = rush.segToSentenceSpans(input);
+        ArrayList<Span> sentences = rush2.segToSentenceSpans(input);
         input = input.replaceAll("\\n", " ");
         printDetails(sentences, input);
         assert (sentences.get(0).begin == 0 && sentences.get(0).end == 19);
@@ -62,7 +64,7 @@ public class TestRuSH {
     @Test
     public void test2() {
         String input = "S/p C6-7 ACDF. No urgent events overnight. Pain control ON. ";
-        ArrayList<Span> sentences = rush.segToSentenceSpans(input);
+        ArrayList<Span> sentences = rush2.segToSentenceSpans(input);
         input = input.replaceAll("\n", " ");
         printDetails(sentences, input);
         assert (sentences.get(0).begin == 0 && sentences.get(0).end == 14);
@@ -83,56 +85,41 @@ public class TestRuSH {
                 "\n" +
                 " •  Hepatorenal syndrome (HCC)    \n" +
                 "\n";
-        ArrayList<Span> sentences = rush.segToSentenceSpans(input);
+        ArrayList<Span> sentences = rush2.segToSentenceSpans(input);
         input = input.replaceAll("\n", " ");
         printDetails(sentences, input);
         assert (sentences.get(0).begin == 1 && sentences.get(0).end == 22);
         assert (sentences.get(1).begin == 31 && sentences.get(1).end == 62);
         assert (sentences.get(2).begin == 71 && sentences.get(2).end == 100);
+
     }
 
 
     @Test
     public void test4() {
         String input = "Delirium - ";
-        ArrayList<Span> sentences = rush.segToSentenceSpans(input);
+        ArrayList<Span> sentences = rush2.segToSentenceSpans(input);
         input = input.replaceAll("\n", " ");
         printDetails(sentences, input);
+        assert (sentences.get(0).begin == 0 && sentences.get(0).end == 10);
     }
 
     @Test
     public void test5() {
         String input = "The patient complained about the TIA \n\n No memory issues. \"I \n\nOrdered the MRI scan.- ";
-        ArrayList<Span> sentences = rush.segToSentenceSpans(input);
+        ArrayList<Span> sentences = rush2.segToSentenceSpans(input);
         input = input.replaceAll("\n", " ");
         printDetails(sentences, input);
+        System.out.println(sentences);
     }
 
     @Test
     public void test6() {
         String input = "S9%\\. Te";
-        ArrayList<Span> sentences = rush.segToSentenceSpans(input);
+        ArrayList<Span> sentences = rush2.segToSentenceSpans(input);
         input = input.replaceAll("\n", " ");
         printDetails(sentences, input);
+        System.out.println(sentences);
     }
 
-    @Test
-    public void test7(){
-        String input = "\n" +
-                "\n" +
-                "Admission Date:  1995-5-24       Discharge Date:  1995-6-2\n" +
-                "\n" +
-                "Date of Birth:   1921-8-13       Sex:  F\n" +
-                "\n" +
-                "Service:  Cardiothoracic Service\n" +
-                "\n" +
-                "CHIEF COMPLAINT:  The patient is a 72-year-old woman with\n" +
-                "chest pain and acute myocardial infarction status post failed\n" +
-                "thrombolytic therapy at an outside hospital transferred to\n" +
-                "University Of Alabama Birmingham Hospital of cardiac\n" +
-                "catheterization.";
-        ArrayList<Span> sentences = rush.segToSentenceSpans(input);
-        input = input.replaceAll("\n", " ");
-        printDetails(sentences, input);
-    }
 }
