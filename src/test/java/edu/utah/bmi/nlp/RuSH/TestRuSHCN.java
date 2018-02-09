@@ -18,6 +18,8 @@ package edu.utah.bmi.nlp.RuSH;
 import edu.utah.bmi.nlp.core.Span;
 import edu.utah.bmi.nlp.fastcner.FastCNER;
 import edu.utah.bmi.nlp.rush.core.RuSH;
+import edu.utah.bmi.nlp.rush.core.RuSH2;
+import edu.utah.bmi.nlp.rush.core.RuSH3;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -30,7 +32,7 @@ import java.util.Map;
  * @Author Jianlin Shi
  */
 public class TestRuSHCN {
-    private RuSH rush;
+    private RuSH3 rush;
 
     public static void printDetails(ArrayList<Span> sentences, String input) {
         for (int i = 0; i < sentences.size(); i++) {
@@ -81,7 +83,7 @@ public class TestRuSHCN {
                 "\\d+/\\d+\t2\ttoend\n" +
                 "\\d+.\\d+\t0\ttobegin\n" +
                 "\\d+.\\d+\t2\ttoend";
-        rush=new RuSH(rule);
+        rush=new RuSH3(rule);
         rush.fillTextInSpan=true;
         ArrayList<Span> sentences = rush.segToSentenceSpans(input);
         ArrayList<ArrayList<Span>> tokens = rush.tokenize(sentences, input);
@@ -97,7 +99,7 @@ public class TestRuSHCN {
         String rule="@fastcnercn\n" +
                 "\\b(\\a\t0\tstbegin\n" +
                 "\\a\\e\t2\tstend\n" ;
-        rush=new RuSH(rule);
+        rush=new RuSH3(rule);
         rush.fillTextInSpan=true;
         ArrayList<Span> sentences = rush.segToSentenceSpans(input);
         ArrayList<ArrayList<Span>> tokens = rush.tokenize(sentences, input);

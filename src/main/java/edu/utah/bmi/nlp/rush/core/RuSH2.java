@@ -10,11 +10,12 @@ import java.util.logging.Logger;
 import static java.lang.Character.isAlphabetic;
 import static java.lang.Character.isDigit;
 
+import edu.utah.bmi.nlp.fastcner.FastCRule;
 import edu.utah.bmi.nlp.rush.core.Marker.MARKERTYPE;
 
-public class RuSH2 {
+public class RuSH2 implements RuSHInf {
     protected static Logger logger = IOUtil.getLogger(RuSH2.class);
-    protected static FastCNER fcrp;
+    protected static FastCRule fcrp;
     protected static final String STBEGIN = "stbegin", STEND = "stend";
     protected HashMap<String, ArrayList<Span>> result;
     public boolean autofixGap = true;
@@ -25,32 +26,19 @@ public class RuSH2 {
     @Deprecated
     protected boolean debug = false;
 
+    protected String mLanguage;
+    protected boolean includePunctuation = false;
+
 
     public RuSH2(String rule) {
         initiate(rule);
     }
 
     public void initiate(String rule) {
-        fcrp = new FastCNER(rule);
-        IOUtil ioUtil = new IOUtil(rule);
-        ArrayList<String> row = ioUtil.getRuleCells().get(0);
-        String lastCell = row.get(row.size() - 1);
-        if (!lastCell.equals("ACTUAL") && !lastCell.equals("PSEUDO"))
-//      compatible to old version rules
-            for (Map.Entry<Integer, Rule> entry : fcrp.fastRule.ruleStore.entrySet()) {
-                int id = entry.getKey();
-                Rule singleRule = entry.getValue();
-                if (!tokenRuleEnabled && singleRule.ruleName.equals(TOKENBEGIN))
-                    tokenRuleEnabled = true;
-                if (singleRule.score % 2 != 0)
-                    singleRule.type = DeterminantValueSet.Determinants.PSEUDO;
-                fcrp.fastRule.ruleStore.put(id, singleRule);
-                fcrp.fastRule.initiate(fcrp.fastRule.ruleStore);
-            }
-
-        fcrp.setReplicationSupport(true);
-
-        fcrp.setCompareMethod("scorewidth");
+        Object[] values = RuSHFactory.createFastRuSHRule(rule);
+        fcrp = (FastCRule) values[0];
+        tokenRuleEnabled = (boolean) values[1];
+        mLanguage = (String) values[2];
 
     }
 
@@ -80,7 +68,6 @@ public class RuSH2 {
     public ArrayList<Span> segToSentenceSpans(String text) {
         ArrayList<Span> sentences = new ArrayList<>();
         result = fcrp.processString(text);
-
         if (logger.isLoggable(Level.FINE)) {
             text = text.replaceAll("\n", " ");
             for (Map.Entry<String, ArrayList<Span>> ent : result.entrySet()) {
@@ -96,103 +83,36 @@ public class RuSH2 {
 
         }
 //        align begins and ends
-        ArrayList<Marker> markers = new ArrayList<>();
         ArrayList<Span> stbegins = result.get(STBEGIN);
-        if (stbegins == null) {
-            markers.add(new Marker(0, MARKERTYPE.BEGIN));
-        } else {
-            for (Span stbegin : stbegins) {
-                if (fcrp.getRule(stbegin.ruleId).type == DeterminantValueSet.Determinants.ACTUAL)
-                    markers.add(new Marker(stbegin.begin, MARKERTYPE.BEGIN));
-            }
-        }
         ArrayList<Span> stends = result.get(STEND);
-        if (stends == null) {
-            markers.add(new Marker(text.length() - 0.4f, MARKERTYPE.END));
-        } else {
-            for (Span stend : stends) {
-                if (fcrp.getRule(stend.ruleId).type == DeterminantValueSet.Determinants.ACTUAL)
-                    markers.add(new Marker(stend.end - 0.4f, MARKERTYPE.END));
-            }
-        }
+        ArrayList<Marker> markers = createMarkers(stbegins, stends, text);
         Collections.sort(markers);
         boolean sentenceStarted = false;
-        ArrayList<Span> sentenceSpans = new ArrayList<>();
         int stBegin = 0;
         for (int i = 0; i < markers.size(); i++) {
             Marker thisMarker = markers.get(i);
             if (sentenceStarted) {
                 if (thisMarker.type == MARKERTYPE.END) {
-                    sentenceSpans.add(new Span(stBegin, thisMarker.getPosition()));
+                    sentences.add(new Span(stBegin, thisMarker.getPosition()));
+                    sentenceStarted = false;
                 }
             } else {
                 if (thisMarker.type == MARKERTYPE.BEGIN) {
                     stBegin = thisMarker.getPosition();
-                } else if (sentenceSpans.size() > 0) {
+                    sentenceStarted = true;
+                } else if (sentences.size() > 0) {
                     int stEnd = thisMarker.getPosition();
 //                right trim
                     while (stEnd >= 1 && (Character.isWhitespace(text.charAt(stEnd - 1)) || (int) text.charAt(stEnd - 1) == 160)) {
                         stEnd--;
                     }
-                    sentenceSpans.get(sentenceSpans.size() - 1).setEnd(thisMarker.getPosition());
+                    sentences.get(sentences.size() - 1).setEnd(thisMarker.getPosition());
                 }
             }
         }
 
 
 
-        int stEnd = 0, stBeginId, stEndId = 0;
-        for (stBeginId = 0; stBeginId < stbegins.size(); stBeginId++) {
-            if (!sentenceStarted) {
-                stBegin = stbegins.get(stBeginId).begin;
-                if (stbegins.get(stBeginId).ruleId != -1 && (fcrp.getRule(stbegins.get(stBeginId).ruleId).type == DeterminantValueSet.Determinants.PSEUDO || stBegin < stEnd))
-                    continue;
-                sentenceStarted = true;
-            } else if (stbegins.get(stBeginId).begin < stEnd) {
-                continue;
-            }
-            for (int k = stEndId; k < stends.size(); k++) {
-                if (stends.get(k).ruleId != -1 && (fcrp.getRule(stends.get(k).ruleId).type == DeterminantValueSet.Determinants.PSEUDO))
-                    continue;
-                if (stBeginId < stbegins.size() - 1 && k < stends.size() - 1
-                        && stbegins.get(stBeginId + 1).getBegin() < stends.get(k).begin + 1) {
-                    break;
-                }
-                stEnd = stends.get(k).begin + 1;
-                stEndId = k;
-//                right trim
-                while (stEnd >= 1 && (Character.isWhitespace(text.charAt(stEnd - 1)) || (int) text.charAt(stEnd - 1) == 160)) {
-                    stEnd--;
-                }
-
-                if (stEnd < stBegin)
-//                   if this STEND is for previous sentence, move the pointer to the next
-                    continue;
-                else if (sentenceStarted) {
-//                   if current status is after a sentence STBEGIN marker
-                    if (autofixGap && sentences.size() > 0) {
-                        fixGap(text, sentences.get(sentences.size() - 1).end, stBegin);
-                    }
-                    if (fillTextInSpan)
-                        sentences.add(new Span(stBegin, stEnd, text.substring(stBegin, stEnd)));
-                    else
-                        sentences.add(new Span(stBegin, stEnd));
-                    sentenceStarted = false;
-                    if (stBeginId == stbegins.size() - 1 ||
-                            (k < stends.size() - 1
-                                    && stbegins.get(stBeginId + 1).getBegin() > stends.get(k + 1).getEnd()))
-                        continue;
-                    break;
-                } else {
-//                   if current status is after a sentence STEND marker, then replace the last output
-                    if (fillTextInSpan)
-                        sentences.set(sentences.size() - 1, new Span(stBegin, stEnd, text.substring(stBegin, stEnd)));
-                    else
-                        sentences.set(sentences.size() - 1, new Span(stBegin, stEnd));
-                    sentenceStarted = false;
-                }
-            }
-        }
         if (logger.isLoggable(Level.FINE)) {
             for (Span sentence : sentences) {
                 logger.fine("Sentence(" + sentence.begin + "-" + sentence.end + "):\t" + ">" + text.substring(sentence.begin, sentence.end) + "<");
@@ -201,11 +121,62 @@ public class RuSH2 {
         return sentences;
     }
 
+    private ArrayList<Marker> createMarkers(ArrayList<Span> begins, ArrayList<Span> ends, String text) {
+        ArrayList<Marker> markers = new ArrayList<>();
+        if (begins == null) {
+            markers.add(new Marker(0, MARKERTYPE.BEGIN));
+            if (ends != null)
+                addEndMarkers(ends, markers);
+            else
+                markers.add(new Marker(text.length() - 0.4f, MARKERTYPE.END));
+        } else {
+            if (ends == null) {
+                addBeginMarkers(begins, markers);
+                markers.add(new Marker(text.length() - 0.4f, MARKERTYPE.END));
+            } else {
+                Iterator<Span> bIter = begins.iterator();
+                Iterator<Span> eIter = ends.iterator();
+//                create a relatively sorted list to reduce the sorting time.
+                while (bIter.hasNext() || eIter.hasNext()) {
+                    if (bIter.hasNext()) {
+                        Span beginSpan = bIter.next();
+                        markers.add(new Marker(beginSpan.getBegin(), MARKERTYPE.BEGIN));
+                    } else {
+                        while (eIter.hasNext()) {
+                            Span endSpan = eIter.next();
+                            markers.add(new Marker(endSpan.getBegin() + 0.6f, MARKERTYPE.END));
+                        }
+                    }
+                    if (eIter.hasNext()) {
+                        Span endSpan = eIter.next();
+                        markers.add(new Marker(endSpan.getBegin() + 0.6f, MARKERTYPE.END));
+                    } else {
+                        while (bIter.hasNext()) {
+                            Span beginSpan = bIter.next();
+                            markers.add(new Marker(beginSpan.getBegin(), MARKERTYPE.BEGIN));
+                        }
+                    }
+                }
+            }
+        }
+        return markers;
+    }
 
-    public ArrayList<ArrayList<Span>> tokenize(ArrayList<Span> sentences, String text) {
+    private void addBeginMarkers(ArrayList<Span> spans, ArrayList<Marker> markers) {
+        for (Span stend : spans) {
+            if (fcrp.getRule(stend.ruleId).type == DeterminantValueSet.Determinants.ACTUAL)
+                markers.add(new Marker(stend.begin, MARKERTYPE.BEGIN));
+        }
+    }
+
+    private void addEndMarkers(ArrayList<Span> spans, ArrayList<Marker> markers) {
+        for (Span stend : spans) {
+            if (fcrp.getRule(stend.ruleId).type == DeterminantValueSet.Determinants.ACTUAL)
+                markers.add(new Marker(stend.end - 0.4f, MARKERTYPE.END));
+        }
+    }
+    public ArrayList<ArrayList<Span>> tokenize(ArrayList<Span> sentences, ArrayList<Span> tobegins, ArrayList<Span> toends, String text) {
         ArrayList<ArrayList<Span>> tokenss = new ArrayList<>();
-        ArrayList<Span> tobegins = result.get(TOKENBEGIN);
-        ArrayList<Span> toends = result.get(TOKENEND);
         Collections.sort(tobegins);
         Collections.sort(toends);
         tokenss.add(new ArrayList<>());
@@ -310,6 +281,34 @@ public class RuSH2 {
             tokenss.remove(lastSentence);
         }
         return tokenss;
+    }
+
+    public ArrayList<ArrayList<Span>> simpleTokenize(ArrayList<Span> sentences, String text) {
+        ArrayList<ArrayList<Span>> tokenss = new ArrayList<>();
+        for (Span sentence : sentences) {
+            ArrayList<Span> tokens;
+            int stBegin = sentence.begin;
+            if (mLanguage.equals("cn")) {
+                tokens = SimpleParser.tokenizeDecimalSmart(text.substring(sentence.begin, sentence.end), includePunctuation, stBegin);
+            } else {
+                tokens = SmartChineseCharacterSplitter.tokenizeDecimalSmart(text.substring(sentence.begin, sentence.end), includePunctuation, stBegin);
+            }
+            tokenss.add(tokens);
+        }
+        return tokenss;
+    }
+
+    public ArrayList<ArrayList<Span>> tokenize(ArrayList<Span> sentences, String text) {
+
+        ArrayList<Span> tobegins = result.get(TOKENBEGIN);
+        ArrayList<Span> toends = result.get(TOKENEND);
+        if (tokenRuleEnabled) {
+            return tokenize(sentences, tobegins, toends, text);
+        } else {
+            return simpleTokenize(sentences, text);
+        }
+
+
     }
 
     @Deprecated

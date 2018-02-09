@@ -1,21 +1,18 @@
 package edu.utah.bmi.nlp.rush.core;
 
 import edu.utah.bmi.nlp.core.*;
-import edu.utah.bmi.nlp.fastcner.FastCNER;
 import edu.utah.bmi.nlp.fastcner.FastCRule;
+import edu.utah.bmi.nlp.rush.core.Marker.MARKERTYPE;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static java.lang.Character.isAlphabetic;
 import static java.lang.Character.isDigit;
 
-public class RuSH implements RuSHInf {
-    protected static Logger logger = IOUtil.getLogger(RuSH.class);
+public class RuSH3 implements RuSHInf {
+    protected static Logger logger = IOUtil.getLogger(RuSH3.class);
     protected static FastCRule fcrp;
     protected static final String STBEGIN = "stbegin", STEND = "stend";
     protected HashMap<String, ArrayList<Span>> result;
@@ -26,11 +23,12 @@ public class RuSH implements RuSHInf {
 
     @Deprecated
     protected boolean debug = false;
+
     protected String mLanguage;
     protected boolean includePunctuation = false;
 
 
-    public RuSH(String rule) {
+    public RuSH3(String rule) {
         initiate(rule);
     }
 
@@ -39,6 +37,7 @@ public class RuSH implements RuSHInf {
         fcrp = (FastCRule) values[0];
         tokenRuleEnabled = (boolean) values[1];
         mLanguage = (String) values[2];
+
     }
 
     protected void fixGap(String text, int previousEnd, int thisBegin) {
@@ -67,7 +66,6 @@ public class RuSH implements RuSHInf {
     public ArrayList<Span> segToSentenceSpans(String text) {
         ArrayList<Span> sentences = new ArrayList<>();
         result = fcrp.processString(text);
-
         if (logger.isLoggable(Level.FINE)) {
             text = text.replaceAll("\n", " ");
             for (Map.Entry<String, ArrayList<Span>> ent : result.entrySet()) {
@@ -82,77 +80,36 @@ public class RuSH implements RuSHInf {
             }
 
         }
-
+//        align begins and ends
         ArrayList<Span> stbegins = result.get(STBEGIN);
         ArrayList<Span> stends = result.get(STEND);
-
-
-//        if(begins==null)
-//        System.out.println(text);
-        if (stbegins == null || stbegins.size() == 0) {
-            stbegins = new ArrayList<>();
-            stbegins.add(new Span(0, 1, -1, -1));
-        }
-        if (stends == null || stends.size() == 0) {
-            stends = new ArrayList<>();
-            stends.add(new Span(text.length() - 1, text.length(), -1, -1));
-        }
-
-
-        int stBegin = 0;
+        ArrayList<Marker> markers = createMarkers(stbegins, stends, text);
+        Collections.sort(markers);
         boolean sentenceStarted = false;
-        int stEnd = 0, stBeginId, stEndId = 0;
-        for (stBeginId = 0; stBeginId < stbegins.size(); stBeginId++) {
-            if (!sentenceStarted) {
-                stBegin = stbegins.get(stBeginId).begin;
-                if (stbegins.get(stBeginId).ruleId != -1 && (fcrp.getRule(stbegins.get(stBeginId).ruleId).type == DeterminantValueSet.Determinants.PSEUDO || stBegin < stEnd))
-                    continue;
-                sentenceStarted = true;
-            } else if (stbegins.get(stBeginId).begin < stEnd) {
-                continue;
-            }
-            for (int k = stEndId; k < stends.size(); k++) {
-                if (stends.get(k).ruleId != -1 && (fcrp.getRule(stends.get(k).ruleId).type == DeterminantValueSet.Determinants.PSEUDO))
-                    continue;
-                if (stBeginId < stbegins.size() - 1 && k < stends.size() - 1
-                        && stbegins.get(stBeginId + 1).getBegin() < stends.get(k).begin + 1) {
-                    break;
+        int stBegin = 0;
+        for (int i = 0; i < markers.size(); i++) {
+            Marker thisMarker = markers.get(i);
+            if (sentenceStarted) {
+                if (thisMarker.type == MARKERTYPE.END) {
+                    sentences.add(new Span(stBegin, thisMarker.getPosition()));
+                    sentenceStarted = false;
                 }
-                stEnd = stends.get(k).begin + 1;
-                stEndId = k;
+            } else {
+                if (thisMarker.type == MARKERTYPE.BEGIN) {
+                    stBegin = thisMarker.getPosition();
+                    sentenceStarted = true;
+                } else if (sentences.size() > 0) {
+                    int stEnd = thisMarker.getPosition();
 //                right trim
-                while (stEnd >= 1 && (Character.isWhitespace(text.charAt(stEnd - 1)) || (int) text.charAt(stEnd - 1) == 160)) {
-                    stEnd--;
-                }
-
-                if (stEnd < stBegin)
-//                   if this STEND is for previous sentence, move the pointer to the next
-                    continue;
-                else if (sentenceStarted) {
-//                   if current status is after a sentence STBEGIN marker
-                    if (autofixGap && sentences.size() > 0) {
-                        fixGap(text, sentences.get(sentences.size() - 1).end, stBegin);
+                    while (stEnd >= 1 && (Character.isWhitespace(text.charAt(stEnd - 1)) || (int) text.charAt(stEnd - 1) == 160)) {
+                        stEnd--;
                     }
-                    if (fillTextInSpan)
-                        sentences.add(new Span(stBegin, stEnd, text.substring(stBegin, stEnd)));
-                    else
-                        sentences.add(new Span(stBegin, stEnd));
-                    sentenceStarted = false;
-                    if (stBeginId == stbegins.size() - 1 ||
-                            (k < stends.size() - 1
-                                    && stbegins.get(stBeginId + 1).getBegin() > stends.get(k + 1).getEnd()))
-                        continue;
-                    break;
-                } else {
-//                   if current status is after a sentence STEND marker, then replace the last output
-                    if (fillTextInSpan)
-                        sentences.set(sentences.size() - 1, new Span(stBegin, stEnd, text.substring(stBegin, stEnd)));
-                    else
-                        sentences.set(sentences.size() - 1, new Span(stBegin, stEnd));
-                    sentenceStarted = false;
+                    sentences.get(sentences.size() - 1).setEnd(thisMarker.getPosition());
                 }
             }
         }
+
+
         if (logger.isLoggable(Level.FINE)) {
             for (Span sentence : sentences) {
                 logger.fine("Sentence(" + sentence.begin + "-" + sentence.end + "):\t" + ">" + text.substring(sentence.begin, sentence.end) + "<");
@@ -160,6 +117,63 @@ public class RuSH implements RuSHInf {
         }
         return sentences;
     }
+
+
+    private ArrayList<Marker> createMarkers(ArrayList<Span> begins, ArrayList<Span> ends, String text) {
+        ArrayList<Marker> markers = new ArrayList<>();
+        if (begins == null) {
+            markers.add(new Marker(0, MARKERTYPE.BEGIN));
+            if (ends != null)
+                addEndMarkers(ends, markers);
+            else
+                markers.add(new Marker(text.length() - 0.4f, MARKERTYPE.END));
+        } else {
+            if (ends == null) {
+                addBeginMarkers(begins, markers);
+                markers.add(new Marker(text.length() - 0.4f, MARKERTYPE.END));
+            } else {
+                Iterator<Span> bIter = begins.iterator();
+                Iterator<Span> eIter = ends.iterator();
+//                create a relatively sorted list to reduce the sorting time.
+                while (bIter.hasNext() || eIter.hasNext()) {
+                    if (bIter.hasNext()) {
+                        Span beginSpan = bIter.next();
+                        markers.add(new Marker(beginSpan.getBegin(), MARKERTYPE.BEGIN));
+                    } else {
+                        while (eIter.hasNext()) {
+                            Span endSpan = eIter.next();
+                            markers.add(new Marker(endSpan.getBegin() + 0.6f, MARKERTYPE.END));
+                        }
+                    }
+                    if (eIter.hasNext()) {
+                        Span endSpan = eIter.next();
+                        markers.add(new Marker(endSpan.getBegin() + 0.6f, MARKERTYPE.END));
+                    } else {
+                        while (bIter.hasNext()) {
+                            Span beginSpan = bIter.next();
+                            markers.add(new Marker(beginSpan.getBegin(), MARKERTYPE.BEGIN));
+                        }
+                    }
+                }
+            }
+        }
+        return markers;
+    }
+
+    private void addBeginMarkers(ArrayList<Span> spans, ArrayList<Marker> markers) {
+        for (Span stend : spans) {
+            if (fcrp.getRule(stend.ruleId).type == DeterminantValueSet.Determinants.ACTUAL)
+                markers.add(new Marker(stend.begin, MARKERTYPE.BEGIN));
+        }
+    }
+
+    private void addEndMarkers(ArrayList<Span> spans, ArrayList<Marker> markers) {
+        for (Span stend : spans) {
+            if (fcrp.getRule(stend.ruleId).type == DeterminantValueSet.Determinants.ACTUAL)
+                markers.add(new Marker(stend.end - 0.4f, MARKERTYPE.END));
+        }
+    }
+
 
     public ArrayList<ArrayList<Span>> tokenize(ArrayList<Span> sentences, ArrayList<Span> tobegins, ArrayList<Span> toends, String text) {
         ArrayList<ArrayList<Span>> tokenss = new ArrayList<>();
@@ -302,15 +316,4 @@ public class RuSH implements RuSHInf {
         this.debug = debug;
     }
 
-    public void setSpecialCharacterSupport(Boolean scSupport) {
-        fcrp.setSpecialCharacterSupport(scSupport);
-    }
-
-    public void setmLanguage(String mLanguage) {
-        this.mLanguage = mLanguage;
-    }
-
-    public void setIncludePunctuation(boolean includePunctuation) {
-        this.includePunctuation = includePunctuation;
-    }
 }

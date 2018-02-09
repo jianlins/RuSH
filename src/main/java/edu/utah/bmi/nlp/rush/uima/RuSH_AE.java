@@ -117,6 +117,8 @@ public class RuSH_AE extends JCasAnnotator_ImplBase {
         if (obj != null && obj instanceof Boolean && (Boolean) obj != false)
             includePunctuation = true;
 
+        rush.setIncludePunctuation(includePunctuation);
+
         obj = cont.getConfigParameterValue(PARAM_LANGUAGE);
         if (obj != null && obj instanceof String) {
             mLanguage = ((String) obj).trim().toLowerCase();
@@ -128,12 +130,16 @@ public class RuSH_AE extends JCasAnnotator_ImplBase {
         if (obj == null)
             sectionClasses.add(SourceDocumentInformation.class);
         else {
-            for (String sectionName : ((String) obj).split("[\\|,;]")) {
-                sectionName = sectionName.trim();
-                if (sectionName.length() > 0) {
-                    sectionClasses.add(AnnotationOper.getTypeClass(DeterminantValueSet.checkNameSpace(sectionName)));
+            String value = (String) obj;
+            if (value.length() == 0)
+                sectionClasses.add(SourceDocumentInformation.class);
+            else
+                for (String sectionName : ((String) obj).split("[\\|,;]")) {
+                    sectionName = sectionName.trim();
+                    if (sectionName.length() > 0) {
+                        sectionClasses.add(AnnotationOper.getTypeClass(DeterminantValueSet.checkNameSpace(sectionName)));
+                    }
                 }
-            }
         }
 
         try {
@@ -170,29 +176,17 @@ public class RuSH_AE extends JCasAnnotator_ImplBase {
         ArrayList<Span> sentences = rush.segToSentenceSpans(text);
         for (Span sentence : sentences) {
             ArrayList<Span> tokens;
-            if (!rush.tokenRuleEnabled) {
-                switch (mLanguage) {
-                    case "en":
-                        tokens = SimpleParser.tokenizeDecimalSmart(text.substring(sentence.begin, sentence.end), includePunctuation);
-                        saveTokens(jCas, sentence, tokens, sectionBegin);
-                        break;
-                    case "cn":
-                        tokens = SmartChineseCharacterSplitter.tokenizeDecimalSmart(text.substring(sentence.begin, sentence.end), includePunctuation);
-                        saveTokens(jCas, sentence, tokens, sectionBegin);
-                        break;
-                }
-            }
+
             saveSentence(jCas, sentence, sectionBegin);
         }
 
-        if (rush.tokenRuleEnabled) {
-            ArrayList<ArrayList<Span>> tokenss = rush.tokenize(sentences, text);
-            for (ArrayList<Span> tokens : tokenss) {
-                for (Span token : tokens) {
-                    saveToken(jCas, token.begin, token.end, sectionBegin);
-                }
+        ArrayList<ArrayList<Span>> tokenss = rush.tokenize(sentences, text);
+        for (ArrayList<Span> tokens : tokenss) {
+            for (Span token : tokens) {
+                saveToken(jCas, token.begin, token.end, sectionBegin);
             }
         }
+
 
     }
 
