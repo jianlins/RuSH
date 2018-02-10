@@ -25,10 +25,12 @@ public class BenchMarkRuSHs {
     protected static String dir = "../RuSHBenchmark/data";
 
     static int times = 10;
+    private final static int executeTimes = 5;
+//  These 2 numbers are used for local debugging, the actual benchmark was conducted on server, using 50, 50.
 
     public boolean tokenize = true;
     private boolean verbose = false;
-    private final static int executeTimes = 5;
+
     final static int numImpls = 3;
     protected static ArrayList<ConcurrentSkipListMap<String, String>> datas = new ArrayList();
 
