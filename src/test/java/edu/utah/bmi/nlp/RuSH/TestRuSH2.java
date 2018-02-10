@@ -45,7 +45,6 @@ public class TestRuSH2 {
 
 //        rush2 = new RuSH(this.getClass().getClassLoader().getResource("mimic.tsv").getPath());
 //        rush2 = new RuSH("conf/rush_rules.xlsx");
-        rush2.setSpecialCharacterSupport(true);
         rush2.fillTextInSpan=true;
     }
 

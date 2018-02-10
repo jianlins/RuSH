@@ -14,6 +14,10 @@ import edu.utah.bmi.nlp.fastcner.FastCRule;
 import edu.utah.bmi.nlp.rush.core.Marker.MARKERTYPE;
 
 
+/**
+ * Deprecated. RuSH3 has a slight better speed (around 0.5%).
+ */
+@Deprecated
 public class RuSH2 implements RuSHInf {
     protected static Logger logger = IOUtil.getLogger(RuSH2.class);
     protected static FastCRule fcrp;
@@ -315,12 +319,13 @@ public class RuSH2 implements RuSHInf {
 
     }
 
+    public void setIncludePunctuation(boolean includePunctuation){
+        this.includePunctuation=includePunctuation;
+    }
+
     @Deprecated
     public void setDebug(boolean debug) {
         this.debug = debug;
     }
 
-    public void setSpecialCharacterSupport(Boolean scSupport) {
-        fcrp.setSpecialCharacterSupport(scSupport);
-    }
 }

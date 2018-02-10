@@ -14,6 +14,10 @@ import java.util.logging.Logger;
 import static java.lang.Character.isAlphabetic;
 import static java.lang.Character.isDigit;
 
+/**
+ * Deprecated due to speed concerns, use RuSH3 instead---around 15~20% speed improvement.
+ */
+@Deprecated
 public class RuSH implements RuSHInf {
     protected static Logger logger = IOUtil.getLogger(RuSH.class);
     protected static FastCRule fcrp;
