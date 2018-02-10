@@ -5,6 +5,8 @@ solution. It is specifically designed to handle the telegraphic written text in 
 hash table to execute simultaneous rule processing, which reduces the impact of the rule-base growth
 on execution time and eliminates the effect of rule order on accuracy. 
 
+A python version is also available: [PyRuSh](https://github.com/jianlins/PyRuSH).
+
 If you wish to cite RuSH in a publication, please use:
 
 >Jianlin Shi ; Danielle Mowery ; Kristina M. Doing-Harris ; John F. Hurdle.RuSH: a Rule-based Segmentation Tool Using Hashing for Extremely Accurate Sentence Segmentation of Clinical Text. AMIA Annu Symp Proc. 2016: 1587. 
