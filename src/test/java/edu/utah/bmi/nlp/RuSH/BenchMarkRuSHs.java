@@ -81,10 +81,10 @@ public class BenchMarkRuSHs {
                         "\\p)\\C\t2\ttoend\n" +
                         "\\p)\\w\t2\ttoend\n";
 
-//        impls[0] = new RuSH3(ruleStr);
+        impls[0] = new RuSH3(ruleStr);
         impls[1] = new RuSH2(ruleStr);
         impls[2] = new RuSH(ruleStr);
-        impls[0] = new RuSH3(FileUtils.readFileToString(new File(ruleStr)) + "\n" + tokenRule);
+//        impls[0] = new RuSH3(FileUtils.readFileToString(new File(ruleStr)) + "\n" + tokenRule);
         for (int i = 0; i < numImpls; i++) {
             names[i] = impls[i].getClass().getSimpleName() + "_" + i;
         }

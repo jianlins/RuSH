@@ -13,6 +13,7 @@ import static java.lang.Character.isDigit;
 import edu.utah.bmi.nlp.fastcner.FastCRule;
 import edu.utah.bmi.nlp.rush.core.Marker.MARKERTYPE;
 
+
 public class RuSH2 implements RuSHInf {
     protected static Logger logger = IOUtil.getLogger(RuSH2.class);
     protected static FastCRule fcrp;
@@ -92,6 +93,9 @@ public class RuSH2 implements RuSHInf {
         for (int i = 0; i < markers.size(); i++) {
             Marker thisMarker = markers.get(i);
             if (sentenceStarted) {
+                if (autofixGap && sentences.size() > 0) {
+                    fixGap(text, sentences.get(sentences.size() - 1).end, stBegin);
+                }
                 if (thisMarker.type == MARKERTYPE.END) {
                     sentences.add(new Span(stBegin, thisMarker.getPosition()));
                     sentenceStarted = false;

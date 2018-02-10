@@ -94,6 +94,9 @@ public class RuSH3 implements RuSHInf {
         for (int i = 0; i < markers.size(); i++) {
             Marker thisMarker = markers.get(i);
             if (sentenceStarted) {
+                if (autofixGap && sentences.size() > 0) {
+                    fixGap(text, sentences.get(sentences.size() - 1).end, stBegin);
+                }
                 if (thisMarker.type == MARKERTYPE.END) {
                     if (fillTextInSpan) {
                         int stend = thisMarker.getPosition();
