@@ -15,10 +15,7 @@ import repeat.RepeatRule;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.CyclicBarrier;
@@ -129,12 +126,15 @@ public class BenchMarkRuSHs {
         CyclicBarrier gate2 = new CyclicBarrier(numImpls + 1, barrierAction);
 
 
+        ArrayList<Integer> startOrder = new ArrayList<>();
         for (int i = 0; i < numImpls; i++) {
             ths[i] = createThread(impls[i], names[i], datas.get(i), gate, gate2, ts[i]);
+            startOrder.add(i);
         }
 
+        Collections.shuffle(startOrder);
         for (int i = 0; i < numImpls; i++) {
-            ths[i].start();
+            ths[startOrder.get(i)].start();
         }
 
         try {
