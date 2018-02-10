@@ -18,9 +18,12 @@ package edu.utah.bmi.nlp.RuSH;
 import edu.utah.bmi.nlp.core.Span;
 import edu.utah.bmi.nlp.rush.core.RuSH2;
 import edu.utah.bmi.nlp.rush.core.RuSH3;
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -46,7 +49,7 @@ public class TestRuSH3 {
 
 //        rush3 = new RuSH(this.getClass().getClassLoader().getResource("mimic.tsv").getPath());
 //        rush3 = new RuSH("conf/rush_rules.xlsx");
-        rush3.fillTextInSpan=true;
+        rush3.fillTextInSpan = true;
     }
 
 
@@ -120,6 +123,115 @@ public class TestRuSH3 {
         input = input.replaceAll("\n", " ");
         printDetails(sentences, input);
         System.out.println(sentences);
+    }
+
+
+    @Test
+    public void test7() throws IOException {
+        String text = FileUtils.readFileToString(new File("../RuSHBenchmark/data/10482.txt"));
+        ArrayList<Span> sentences = rush3.segToSentenceSpans(text);
+
+    }
+
+    @Test
+    public void test8() throws IOException {
+        String tokenRule =
+                "\\b(\\a\t0\tstbegin\n" +
+                        "\\a\\e\t2\tstend\n" +
+                        "\\C\t0\ttobegin\n" +
+                        "\\C)\\w\t2\ttoend\n" +
+                        "\\C)\\p\t2\ttoend\n" +
+                        "\\C)\\d\t2\ttoend\n" +
+
+                        "\\c\t0\ttobegin\n" +
+                        "\\c)\\w\t2\ttoend\n" +
+                        "\\c)\\p\t2\ttoend\n" +
+                        "\\c)\\d\t2\ttoend\n" +
+
+                        "\\d\t0\ttobegin\n" +
+                        "\\d(\\d\t1\ttobegin\n" +
+
+                        "\\d)\\c\t2\ttoend\n" +
+                        "\\d)\\C\t2\ttoend\n" +
+                        "\\d)\\w\t2\ttoend\n" +
+                        "\\d)\\p\t2\ttoend\n" +
+                        "\\d).\\d\t3\ttoend\n" +
+                        "\\d)[| +].[| +]\\d\t3\ttoend\n" +
+                        "\\d)[| +]+/[| +]\\d\t3\ttoend\n" +
+                        "\\a\\e\t2\ttoend\n" +
+
+                        "\\c\t0\ttobegin\n" +
+                        "\\c(\\c\t1\ttobegin\n" +
+
+
+                        "\\p\t0\ttobegin\n" +
+                        "\\p)\\d\t2\ttoend\n" +
+                        "\\d[| +](.)[| +]\\d\t3\ttoend\n" +
+                        "\\d[| +](/)[| +]\\d\t3\ttoend\n" +
+                        "\\p)\\c\t2\ttoend\n" +
+                        "\\p)\\C\t2\ttoend\n" +
+                        "\\p)\\w\t2\ttoend\n";
+        String input = "The pt. DID is fichskl 32/3892 3.0.";
+        input = FileUtils.readFileToString(new File("../RuSHBenchmark/data/10482.txt"));
+        tokenRule = FileUtils.readFileToString(new File("conf/rush_rules.tsv")) + "\n" + tokenRule;
+        rush3 = new RuSH3(tokenRule);
+        rush3.fillTextInSpan = true;
+        ArrayList<Span> sentences = rush3.segToSentenceSpans(input);
+        ArrayList<ArrayList<Span>> tokenss = rush3.tokenize(sentences, input);
+        System.out.println(tokenss);
+
+    }
+
+    @Test
+    public void test9() throws IOException {
+        String tokenRule =
+                "\\b(\\a\t0\tstbegin\n" +
+                        "\\a\\e\t2\tstend\n" +
+                        "\\C\t0\ttobegin\n" +
+                        "\\C)\\w\t2\ttoend\n" +
+                        "\\C)\\p\t2\ttoend\n" +
+                        "\\C)\\d\t2\ttoend\n" +
+
+                        "\\c\t0\ttobegin\n" +
+                        "\\c)\\w\t2\ttoend\n" +
+                        "\\c)\\p\t2\ttoend\n" +
+                        "\\c)\\d\t2\ttoend\n" +
+
+                        "\\d\t0\ttobegin\n" +
+                        "\\d(\\d\t1\ttobegin\n" +
+
+                        "\\d)\\c\t2\ttoend\n" +
+                        "\\d)\\C\t2\ttoend\n" +
+                        "\\d)\\w\t2\ttoend\n" +
+                        "\\d)\\p\t2\ttoend\n" +
+                        "\\d).\\d\t3\ttoend\n" +
+                        "\\d)[| +].[| +]\\d\t3\ttoend\n" +
+                        "\\d)[| +]+/[| +]\\d\t3\ttoend\n" +
+                        "\\a\\e\t2\ttoend\n" +
+
+                        "\\c\t0\ttobegin\n" +
+                        "\\c(\\c\t1\ttobegin\n" +
+
+
+                        "\\p\t0\ttobegin\n" +
+                        "\\p)\\d\t2\ttoend\n" +
+                        "\\d[| +](.)[| +]\\d\t3\ttoend\n" +
+                        "\\d[| +](/)[| +]\\d\t3\ttoend\n" +
+                        "\\p)\\c\t2\ttoend\n" +
+                        "\\p)\\C\t2\ttoend\n" +
+                        "\\p)\\w\t2\ttoend\n";
+        String input =
+                "stones\n" +
+                "Gout\n" +
+                "PUD";
+        tokenRule = FileUtils.readFileToString(new File("conf/rush_rules.tsv")) + "\n" + tokenRule;
+        rush3 = new RuSH3(tokenRule);
+        rush3.fillTextInSpan = true;
+        ArrayList<Span> sentences = rush3.segToSentenceSpans(input);
+        System.out.println(sentences);
+        ArrayList<ArrayList<Span>> tokenss = rush3.tokenize(sentences, input);
+        System.out.println(tokenss);
+
     }
 
 }

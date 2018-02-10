@@ -44,9 +44,9 @@ public class TestRuSHCN {
     }
 
     @Test
-    public void testCharacterizer(){
-        String input="患者血压123/88mmHg，呼吸3.0次/分。";
-        String rule="@fastcnercn\n" +
+    public void testCharacterizer() {
+        String input = "患者血压123/88mmHg，呼吸3.0次/分。";
+        String rule = "@fastcnercn\n" +
 //                "\\b(\\a\t0\ttobegin\n" +
 //                "\\a\\e\t2\ttoend\n" +
                 "\\C\t0\ttobegin\n" +
@@ -59,52 +59,99 @@ public class TestRuSHCN {
                 "\\d+/\\d+\t2\ttoend\n" +
                 "\\d+.\\d+\t0\ttobegin\n" +
                 "\\d+.\\d+\t2\ttoend";
-        FastCNER fcrp=new FastCNER(rule);
+        FastCNER fcrp = new FastCNER(rule);
         HashMap<String, ArrayList<Span>> res = fcrp.processString(input);
         fcrp.printRulesMap();
-        for(Map.Entry<String,ArrayList<Span>>entry:res.entrySet()){
-            System.out.println(entry.getKey()+"\n"+entry.getValue());
+        for (Map.Entry<String, ArrayList<Span>> entry : res.entrySet()) {
+            System.out.println(entry.getKey() + "\n" + entry.getValue());
         }
     }
 
     @Test
-    public void testTokenizer(){
-        String input="患者血压123/88mmHg，呼吸3.0次/分。";
-        String rule="@fastcnercn\n" +
+    public void testTokenizer() {
+        String input = "患者血压123/88mmHg，呼吸3.0次/分。";
+        String rule = "@cn\n" +
                 "\\b(\\a\t0\tstbegin\n" +
                 "\\a\\e\t2\tstend\n" +
                 "\\C\t0\ttobegin\n" +
                 "\\C\t2\ttoend\n" +
-                "\\d+\t0\ttobegin\n" +
-                "\\d+\t2\ttoend\n" +
-                "\\p+\t0\ttobegin\n" +
-                "\\p+\t2\ttoend\n" +
-                "\\d+/\\d+\t0\ttobegin\n" +
-                "\\d+/\\d+\t2\ttoend\n" +
-                "\\d+.\\d+\t0\ttobegin\n" +
-                "\\d+.\\d+\t2\ttoend";
-        rush=new RuSH3(rule);
-        rush.fillTextInSpan=true;
+
+                "\\d\t0\ttobegin\n" +
+                "\\d\\d+\t1\ttobegin\n" +
+
+                "\\d)\\c\t2\ttoend\n" +
+                "\\d)\\C\t2\ttoend\n" +
+                "\\d)\\w\t2\ttoend\n";
+
+        rush = new RuSH3(rule);
+        rush.fillTextInSpan = true;
         ArrayList<Span> sentences = rush.segToSentenceSpans(input);
         ArrayList<ArrayList<Span>> tokens = rush.tokenize(sentences, input);
         System.out.println(tokens);
-        for(ArrayList<Span>token:tokens){
+        for (ArrayList<Span> token : tokens) {
             System.out.println(token);
         }
     }
 
     @Test
-    public void testSimpleTokenizer(){
-        String input="患者血压123/88mmHg，呼吸3.0次/分。";
-        String rule="@fastcnercn\n" +
+    public void testTokenizer2() {
+        String input = "患者血压123/88mmHg，呼吸3.0次/分。";
+        String rule = "@cn\n" +
                 "\\b(\\a\t0\tstbegin\n" +
-                "\\a\\e\t2\tstend\n" ;
-        rush=new RuSH3(rule);
-        rush.fillTextInSpan=true;
+                "\\a\\e\t2\tstend\n" +
+                "\\C\t0\ttobegin\n" +
+                "\\C\t2\ttoend\n" +
+
+                "\\d\t0\ttobegin\n" +
+                "\\d(\\d\t1\ttobegin\n" +
+
+                "\\d)\\c\t2\ttoend\n" +
+                "\\d)\\C\t2\ttoend\n" +
+                "\\d)\\w\t2\ttoend\n" +
+                "\\d)\\p\t2\ttoend\n" +
+                "\\d).\\d\t3\ttoend\n" +
+                "\\d)[| +].[| +]\\d\t3\ttoend\n" +
+                "\\d)[| +]+/[| +]\\d\t3\ttoend\n" +
+                "\\a\\e\t2\ttoend\n" +
+
+                "\\c\t0\ttobegin\n" +
+                "\\c(\\c\t1\ttobegin\n" +
+
+                "\\c)\\d\t2\ttoend\n" +
+                "\\c)\\C\t2\ttoend\n" +
+                "\\c)\\w\t2\ttoend\n" +
+                "\\c)\\p\t2\ttoend\n" +
+                "\\c)\\c\t3\ttoend\n"+
+
+                "\\p)\\d\t2\ttoend\n" +
+                "\\p\t2\ttobegin\n" +
+                "\\d[| +](.)[| +]\\d\t3\ttoend\n" +
+                "\\d[| +](/)[| +]\\d\t3\ttoend\n" +
+                "\\p)\\c\t2\ttoend\n" +
+                "\\p)\\C\t2\ttoend\n" +
+                "\\p)\\w\t2\ttoend\n"
+                ;
+
+        rush = new RuSH3(rule);
+        rush.fillTextInSpan = true;
         ArrayList<Span> sentences = rush.segToSentenceSpans(input);
         ArrayList<ArrayList<Span>> tokens = rush.tokenize(sentences, input);
         System.out.println(tokens);
-        for(ArrayList<Span>token:tokens){
+
+    }
+
+    @Test
+    public void testSimpleTokenizer() {
+        String input = "患者血压123/88mmHg，呼吸3.0次/分。";
+        String rule = "@fastcnercn\n" +
+                "\\b(\\a\t0\tstbegin\n" +
+                "\\a\\e\t2\tstend\n";
+        rush = new RuSH3(rule);
+        rush.fillTextInSpan = true;
+        ArrayList<Span> sentences = rush.segToSentenceSpans(input);
+        ArrayList<ArrayList<Span>> tokens = rush.tokenize(sentences, input);
+        System.out.println(tokens);
+        for (ArrayList<Span> token : tokens) {
             System.out.println(token);
         }
     }

@@ -20,20 +20,20 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.CyclicBarrier;
 
 public class BenchMarkRuSHs {
-    protected static ArrayList<String> data1, data3, data4;
-    protected static String ruleStr = "conf/rush_rules_v3.xlsx";
-    protected static String dir = "/home/brokenjade/IdeaProjects/RuSHBenchmark/data";
+    protected static String ruleStr = "conf/rush_rules.tsv";
+    protected static String dir = "../RuSHBenchmark/data";
 
-    static int times = 40;
+    static int times = 10;
 
     public boolean tokenize = true;
     private boolean verbose = false;
-    private final static int executeTimes = 20;
+    private final static int executeTimes = 5;
     final static int numImpls = 3;
-    protected static ArrayList<String>[] datas = new ArrayList[numImpls];
+    protected static ArrayList<ConcurrentSkipListMap<String, String>> datas = new ArrayList();
 
     private static float[] averages = new float[numImpls - 1];
     private static RuSHInf[] impls = new RuSHInf[numImpls];
@@ -44,22 +44,61 @@ public class BenchMarkRuSHs {
     @BeforeClass
     public static void init() throws IOException {
         initData(dir);
-        impls[0] = new RuSH3(ruleStr);
+        String tokenRule =
+                "\\b(\\a\t0\tstbegin\n" +
+                        "\\a\\e\t2\tstend\n" +
+                        "\\C\t0\ttobegin\n" +
+                        "\\C)\\w\t2\ttoend\n" +
+                        "\\C)\\p\t2\ttoend\n" +
+                        "\\C)\\d\t2\ttoend\n" +
+
+                        "\\c\t0\ttobegin\n" +
+                        "\\c)\\w\t2\ttoend\n" +
+                        "\\c)\\p\t2\ttoend\n" +
+                        "\\c)\\d\t2\ttoend\n" +
+
+                        "\\d\t0\ttobegin\n" +
+                        "\\d(\\d\t1\ttobegin\n" +
+
+                        "\\d)\\c\t2\ttoend\n" +
+                        "\\d)\\C\t2\ttoend\n" +
+                        "\\d)\\w\t2\ttoend\n" +
+                        "\\d)\\p\t2\ttoend\n" +
+                        "\\d).\\d\t3\ttoend\n" +
+                        "\\d)[| +].[| +]\\d\t3\ttoend\n" +
+                        "\\d)[| +]+/[| +]\\d\t3\ttoend\n" +
+                        "\\a\\e\t2\ttoend\n" +
+
+                        "\\c\t0\ttobegin\n" +
+                        "\\c(\\c\t1\ttobegin\n" +
+
+
+                        "\\p\t0\ttobegin\n" +
+                        "\\p)\\d\t2\ttoend\n" +
+                        "\\d[| +](.)[| +]\\d\t3\ttoend\n" +
+                        "\\d[| +](/)[| +]\\d\t3\ttoend\n" +
+                        "\\p)\\c\t2\ttoend\n" +
+                        "\\p)\\C\t2\ttoend\n" +
+                        "\\p)\\w\t2\ttoend\n";
+
+//        impls[0] = new RuSH3(ruleStr);
         impls[1] = new RuSH2(ruleStr);
         impls[2] = new RuSH(ruleStr);
+        impls[0] = new RuSH3(FileUtils.readFileToString(new File(ruleStr)) + "\n" + tokenRule);
         for (int i = 0; i < numImpls; i++) {
-            names[i] = impls[i].getClass().getSimpleName();
+            names[i] = impls[i].getClass().getSimpleName() + "_" + i;
         }
     }
 
     protected static void initData(String dir) throws IOException {
-        datas[0] = new ArrayList<>();
+        ConcurrentSkipListMap<String, String> data = new ConcurrentSkipListMap<>();
         Collection<File> files = FileUtils.listFiles(new File(dir), new String[]{"txt"}, false);
         for (File file : files) {
-            datas[0].add(FileUtils.readFileToString(file));
+            data.put(file.getName(), FileUtils.readFileToString(file));
         }
+        datas.add(data);
         for (int i = 1; i < numImpls; i++) {
-            datas[i] = (ArrayList<String>) datas[0].clone();
+            datas.add(data.clone());
         }
     }
 
@@ -91,7 +130,7 @@ public class BenchMarkRuSHs {
 
 
         for (int i = 0; i < numImpls; i++) {
-            ths[i] = createThread(impls[i], names[i], datas[i], gate, gate2, ts[i]);
+            ths[i] = createThread(impls[i], names[i], datas.get(i), gate, gate2, ts[i]);
         }
 
         for (int i = 0; i < numImpls; i++) {
@@ -108,7 +147,7 @@ public class BenchMarkRuSHs {
         }
     }
 
-    private Thread createThread(RuSHInf rush, String name, ArrayList<String> data, CyclicBarrier gate1, CyclicBarrier gate2, long[] t) {
+    private Thread createThread(RuSHInf rush, String name, ConcurrentSkipListMap<String, String> data, CyclicBarrier gate1, CyclicBarrier gate2, long[] t) {
         Thread th = new Thread(() -> {
             try {
                 if (verbose)
@@ -118,7 +157,9 @@ public class BenchMarkRuSHs {
                     System.out.println("Run " + name);
                 long ts = System.currentTimeMillis();
                 for (int i = 0; i < times; i++)
-                    for (String text : data) {
+                    for (String fileName : data.keySet()) {
+//                        System.err.println(fileName);
+                        String text = data.get(fileName);
                         ArrayList<Span> sentences = rush.segToSentenceSpans(text);
                         if (tokenize)
                             rush.tokenize(sentences, text);
