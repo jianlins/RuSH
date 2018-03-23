@@ -24,11 +24,11 @@ public class BenchMarkRuSHs {
     protected static String ruleStr = "conf/rush_rules.tsv";
     protected static String dir = "../RuSHBenchmark/data";
 
-    static int times = 10;
+    static int times = 50;
 
     public boolean tokenize = true;
     private boolean verbose = false;
-    private final static int executeTimes = 5;
+    private final static int executeTimes = 50;
     final static int numImpls = 3;
     protected static ArrayList<ConcurrentSkipListMap<String, String>> datas = new ArrayList();
 
@@ -127,16 +127,19 @@ public class BenchMarkRuSHs {
 
 
         ArrayList<Integer> startOrder = new ArrayList<>();
+        System.out.print("Execute order: \t");
         for (int i = 0; i < numImpls; i++) {
             ths[i] = createThread(impls[i], names[i], datas.get(i), gate, gate2, ts[i]);
             startOrder.add(i);
+
         }
 
         Collections.shuffle(startOrder);
         for (int i = 0; i < numImpls; i++) {
             ths[startOrder.get(i)].start();
+            System.out.print(names[startOrder.get(i)]+"\t");
         }
-
+        System.out.println("");
         try {
             gate.await();
             gate2.await();
