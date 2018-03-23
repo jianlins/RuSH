@@ -17,8 +17,6 @@ package edu.utah.bmi.nlp.RuSH;
 
 import edu.utah.bmi.nlp.core.Span;
 import edu.utah.bmi.nlp.rush.core.RuSH;
-import edu.utah.bmi.nlp.rush.core.RuSH3;
-import edu.utah.bmi.nlp.rush.core.RuSHInf;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,19 +28,20 @@ import java.util.ArrayList;
  * @Author Jianlin Shi
  */
 public class TestRuSH {
-    private RuSHInf rush;
+    private RuSH rush;
 
     public static void printDetails(ArrayList<Span> sentences, String input) {
         for (int i = 0; i < sentences.size(); i++) {
             Span sentence = sentences.get(i);
-            System.out.println("assert (sentences.get(" + i + ").begin == " + sentence.begin + " &&" +
-                    " sentences.get(" + i + ").end == " + sentence.end + ");");
+            System.out.println(">"+input.substring(sentence.begin,sentence.end)+"<");
+            System.out.println("assert (sentences.get(" + i + ").fbegin == " + sentence.begin + " &&" +
+                    " sentences.get(" + i + ").fend == " + sentence.end + ");");
         }
     }
 
     @Before
     public void initiate() {
-        rush = new RuSH3("conf/rush_rules_v3.xlsx");
+        rush = new RuSH("conf/rush_rules.tsv");
 
 //        rush = new RuSH(this.getClass().getClassLoader().getResource("mimic.tsv").getPath());
 //        rush = new RuSH("conf/rush_rules.xlsx");
@@ -118,7 +117,7 @@ public class TestRuSH {
     }
 
     @Test
-    public void test7(){
+    public void test7() {
         String input = "\n" +
                 "\n" +
                 "Admission Date:  1995-5-24       Discharge Date:  1995-6-2\n" +

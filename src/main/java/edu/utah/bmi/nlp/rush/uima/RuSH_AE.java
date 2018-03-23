@@ -15,17 +15,18 @@
  *******************************************************************************/
 package edu.utah.bmi.nlp.rush.uima;
 
-import edu.utah.bmi.nlp.core.*;
-import edu.utah.bmi.nlp.rush.core.RuSH;
-import edu.utah.bmi.nlp.rush.core.SmartChineseCharacterSplitter;
+import edu.utah.bmi.nlp.core.DeterminantValueSet;
+import edu.utah.bmi.nlp.core.IOUtil;
+import edu.utah.bmi.nlp.core.Span;
+import edu.utah.bmi.nlp.rush.core.RuSH3;
 import edu.utah.bmi.nlp.uima.common.AnnotationOper;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.FSIndex;
+import org.apache.uima.examples.SourceDocumentInformation;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.apache.uima.examples.SourceDocumentInformation;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -33,8 +34,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.logging.Logger;
-
-import static java.lang.Character.isDigit;
 
 
 /**
@@ -45,7 +44,7 @@ import static java.lang.Character.isDigit;
 public class RuSH_AE extends JCasAnnotator_ImplBase {
 
     private static Logger logger = IOUtil.getLogger(RuSH_AE.class);
-    private RuSH rush;
+    private RuSH3 rush;
     private boolean autoFixGaps = true;
 
 
@@ -65,6 +64,8 @@ public class RuSH_AE extends JCasAnnotator_ImplBase {
 
     public static final String PARAM_INCLUDE_PUNCTUATION = "IncludePunctuation";
 
+    //   mLanguage is defined in rule file/string
+    @Deprecated
     public static final String PARAM_LANGUAGE = "Language";
 
     @Deprecated
@@ -74,7 +75,8 @@ public class RuSH_AE extends JCasAnnotator_ImplBase {
     protected boolean includePunctuation = false, differentColoring = false, colorIndicator = false;
     protected static Constructor<? extends Annotation> SentenceTypeConstructor, AlterSentenceTypeConstructor, TokenTypeConstructor;
 
-
+    //   mLanguage is defined in rule file/string
+    @Deprecated
     private String mLanguage;
 
     private LinkedHashSet<Class> sectionClasses = new LinkedHashSet<>();
@@ -82,9 +84,8 @@ public class RuSH_AE extends JCasAnnotator_ImplBase {
     public void initialize(UimaContext cont) {
         String ruleFileName = (String) (cont
                 .getConfigParameterValue(PARAM_RULE_STR));
-        rush = new RuSH(ruleFileName);
+        rush = new RuSH3(ruleFileName);
 //        rush.setDebug(true);
-        rush.setSpecialCharacterSupport(true);
         Object autoFixGapsObj = cont.getConfigParameterValue(PARAM_FIX_GAPS);
         if (autoFixGapsObj != null) {
             autoFixGaps = (Boolean) autoFixGapsObj;
@@ -175,8 +176,6 @@ public class RuSH_AE extends JCasAnnotator_ImplBase {
         int sectionBegin = section.getBegin();
         ArrayList<Span> sentences = rush.segToSentenceSpans(text);
         for (Span sentence : sentences) {
-            ArrayList<Span> tokens;
-
             saveSentence(jCas, sentence, sectionBegin);
         }
 

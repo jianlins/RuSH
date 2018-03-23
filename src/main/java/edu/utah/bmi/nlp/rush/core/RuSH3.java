@@ -9,16 +9,15 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static edu.utah.bmi.nlp.rush.core.RuSH.*;
 import static java.lang.Character.isAlphabetic;
 import static java.lang.Character.isDigit;
 
 public class RuSH3 implements RuSHInf {
     protected static Logger logger = IOUtil.getLogger(RuSH3.class);
     protected static FastCRule fcrp;
-    protected static final String STBEGIN = "stbegin", STEND = "stend";
     protected HashMap<String, ArrayList<Span>> result;
     public boolean autofixGap = true;
-    protected static final String TOKENBEGIN = "tobegin", TOKENEND = "toend";
     public boolean tokenRuleEnabled = false;
     public boolean fillTextInSpan = false;
 
@@ -302,6 +301,9 @@ public class RuSH3 implements RuSHInf {
 
     }
 
+    public void setIncludePunctuation(boolean includePunctuation){
+        this.includePunctuation=includePunctuation;
+    }
     @Deprecated
     public void setDebug(boolean debug) {
         this.debug = debug;

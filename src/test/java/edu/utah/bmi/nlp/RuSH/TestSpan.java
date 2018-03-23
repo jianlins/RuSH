@@ -16,8 +16,12 @@
 package edu.utah.bmi.nlp.RuSH;
 
 import edu.utah.bmi.nlp.core.Span;
+import edu.utah.bmi.nlp.rush.core.Marker;
+import edu.utah.bmi.nlp.rush.core.RuSH;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.TreeSet;
 
 import static java.lang.Math.round;
@@ -71,5 +75,31 @@ public class TestSpan {
         System.out.println(round(b));
         System.out.println(round(c));
 
+    }
+
+    @Test
+    public void testSort(){
+        ArrayList<Marker>list=new ArrayList<>();
+        for (int i=0;i<10;i++){
+            float begin=(float)Math.random()*10;
+            Marker span=new Marker(begin,begin+6,6);
+            list.add(span);
+        }
+        System.out.println(list);
+        Collections.sort(list);
+        System.out.println(list);
+    }
+
+    @Test
+    public void testSort2(){
+        ArrayList<Marker>list=new ArrayList<>();
+        for (int i=0;i<10;i++){
+            int begin=(int)(Math.random()*100);
+            Marker span=new Marker(begin,begin+6,6);
+            list.add(span);
+        }
+        System.out.println(list);
+        Collections.sort(list);
+        System.out.println(list);
     }
 }
