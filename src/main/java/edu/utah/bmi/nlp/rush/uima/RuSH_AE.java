@@ -84,7 +84,6 @@ public class RuSH_AE extends JCasAnnotator_ImplBase {
                 .getConfigParameterValue(PARAM_RULE_STR));
         rush = new RuSH(ruleFileName);
 //        rush.setDebug(true);
-        rush.setSpecialCharacterSupport(true);
         Object autoFixGapsObj = cont.getConfigParameterValue(PARAM_FIX_GAPS);
         if (autoFixGapsObj != null) {
             autoFixGaps = (Boolean) autoFixGapsObj;
