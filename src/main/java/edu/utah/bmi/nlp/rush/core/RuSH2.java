@@ -12,7 +12,7 @@ import static java.lang.Character.isDigit;
 
 import edu.utah.bmi.nlp.rush.core.Marker.MARKERTYPE;
 
-public class RuSH2 {
+public class RuSH2 implements RuSHInf{
     protected static Logger logger = IOUtil.getLogger(RuSH2.class);
     protected static FastCNER fcrp;
     protected static final String STBEGIN = "stbegin", STEND = "stend";
@@ -54,7 +54,7 @@ public class RuSH2 {
 
     }
 
-    protected void fixGap(String text, int previousEnd, int thisBegin) {
+    protected void fixGap(String text, ArrayList<Span> sentences, int previousEnd, int thisBegin) {
         int counter = 0, begin = 0, end = 0;
         char[] gapChars = text.substring(previousEnd, thisBegin).toCharArray();
         for (int i = 0; i < thisBegin - previousEnd; i++) {
@@ -72,7 +72,7 @@ public class RuSH2 {
         if (counter > 5) {
             begin += previousEnd;
             end = end + previousEnd + 1;
-            Span sentence = new Span(begin, end);
+			sentences.add(new Span(begin, end));
         }
     }
 
@@ -171,7 +171,7 @@ public class RuSH2 {
                 else if (sentenceStarted) {
 //                   if current status is after a sentence STBEGIN marker
                     if (autofixGap && sentences.size() > 0) {
-                        fixGap(text, sentences.get(sentences.size() - 1).end, stBegin);
+                        fixGap(text,sentences, sentences.get(sentences.size() - 1).end, stBegin);
                     }
                     if (fillTextInSpan)
                         sentences.add(new Span(stBegin, stEnd, text.substring(stBegin, stEnd)));
@@ -203,6 +203,8 @@ public class RuSH2 {
 
 
     public ArrayList<ArrayList<Span>> tokenize(ArrayList<Span> sentences, String text) {
+        if (!tokenRuleEnabled)
+            return new ArrayList<>();
         ArrayList<ArrayList<Span>> tokenss = new ArrayList<>();
         ArrayList<Span> tobegins = result.get(TOKENBEGIN);
         ArrayList<Span> toends = result.get(TOKENEND);
