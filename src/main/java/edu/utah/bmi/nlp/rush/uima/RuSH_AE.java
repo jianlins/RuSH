@@ -125,7 +125,7 @@ public class RuSH_AE extends JCasAnnotator_ImplBase {
         }
 
         obj = cont.getConfigParameterValue(PARAM_INSIDE_SECTIONS);
-        if (obj == null)
+        if (obj == null || obj.toString().trim().length() == 0)
             sectionClasses.add(SourceDocumentInformation.class);
         else {
             for (String sectionName : ((String) obj).split("[\\|,;]")) {
