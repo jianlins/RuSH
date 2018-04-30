@@ -79,7 +79,7 @@ public class RuSHTest_AE extends JCasAnnotator_ImplBase {
             sentences.add(thisSentence);
             if (printSpan)
                 if (printText)
-                    System.out.println(thisSentence.getType().getShortName() + "(" + thisSentence.getBegin() + "~" + thisSentence.getEnd() + "):\t" + thisSentence.getCoveredText().replaceAll("\\n", "<\\\\n>"));
+                    System.out.println(thisSentence.getType().getShortName() + "(" + thisSentence.getBegin() + "~" + thisSentence.getEnd() + "):\t>" + thisSentence.getCoveredText().replaceAll("\\n", "<\\\\n>")+"<");
                 else
                     System.out.println(thisSentence.getType().getShortName() + ":\t" + thisSentence.getBegin() + "~" + thisSentence.getEnd());
         }
