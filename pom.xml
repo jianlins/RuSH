@@ -160,12 +160,12 @@
         <dependency>
             <groupId>edu.utah.bmi.nlp</groupId>
             <artifactId>nlp-core</artifactId>
-            <version>${nlp.core.veresion}</version>
+            <version>${nlp.core.version}</version>
         </dependency>
         <dependency>
             <groupId>edu.utah.bmi.nlp</groupId>
             <artifactId>fastner</artifactId>
-            <version>${nlp.core.veresion}</version>
+            <version>${nlp.core.version}</version>
         </dependency>
     </dependencies>
 
