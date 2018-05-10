@@ -15,17 +15,21 @@
  *******************************************************************************/
 package edu.utah.bmi.nlp.rush.uima;
 
-import edu.utah.bmi.nlp.core.*;
+import edu.utah.bmi.nlp.core.DeterminantValueSet;
+import edu.utah.bmi.nlp.core.IOUtil;
+import edu.utah.bmi.nlp.core.SimpleParser;
+import edu.utah.bmi.nlp.core.Span;
 import edu.utah.bmi.nlp.rush.core.RuSH;
 import edu.utah.bmi.nlp.rush.core.SmartChineseCharacterSplitter;
+import edu.utah.bmi.nlp.uima.ae.RuleBasedAEInf;
 import edu.utah.bmi.nlp.uima.common.AnnotationOper;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.FSIndex;
+import org.apache.uima.examples.SourceDocumentInformation;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
-import org.apache.uima.examples.SourceDocumentInformation;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -34,15 +38,13 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.logging.Logger;
 
-import static java.lang.Character.isDigit;
-
 
 /**
  * This is RuSH Wrapper into UIMA analyses engine.
  *
  * @author Jianlin Shi
  */
-public class RuSH_AE extends JCasAnnotator_ImplBase {
+public class RuSH_AE extends JCasAnnotator_ImplBase implements RuleBasedAEInf {
 
     private static Logger logger = IOUtil.getLogger(RuSH_AE.class);
     private RuSH rush;
@@ -55,7 +57,7 @@ public class RuSH_AE extends JCasAnnotator_ImplBase {
     public static final String PARAM_INSIDE_SECTIONS = "InsideSections";
 
     public static final String PARAM_FIX_GAPS = "AutoFixGaps";
-    public static final String PARAM_RULE_STR = "RuleStr";
+    public static final String PARAM_RULE_STR = DeterminantValueSet.PARAM_RULE_STR;
     public static final String PARAM_SENTENCE_TYPE_NAME = "SentenceTypeName";
 
     //  if this parameter is set, then the adjacent sentences will be annotated in different color-- easy to review
