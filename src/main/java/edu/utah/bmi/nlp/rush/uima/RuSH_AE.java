@@ -15,10 +15,7 @@
  *******************************************************************************/
 package edu.utah.bmi.nlp.rush.uima;
 
-import edu.utah.bmi.nlp.core.DeterminantValueSet;
-import edu.utah.bmi.nlp.core.IOUtil;
-import edu.utah.bmi.nlp.core.SimpleParser;
-import edu.utah.bmi.nlp.core.Span;
+import edu.utah.bmi.nlp.core.*;
 import edu.utah.bmi.nlp.rush.core.RuSH;
 import edu.utah.bmi.nlp.rush.core.SmartChineseCharacterSplitter;
 import edu.utah.bmi.nlp.uima.ae.RuleBasedAEInf;
@@ -35,6 +32,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.logging.Logger;
 
@@ -247,5 +245,10 @@ public class RuSH_AE extends JCasAnnotator_ImplBase implements RuleBasedAEInf {
             typeName = "edu.utah.bmi.nlp.type.system." + typeName;
         }
         return typeName;
+    }
+
+    @Override
+    public LinkedHashMap<String, TypeDefinition> getTypeDefs(String ruleStr) {
+        return new LinkedHashMap<>();
     }
 }
