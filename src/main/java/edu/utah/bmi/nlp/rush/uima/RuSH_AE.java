@@ -15,10 +15,10 @@
  *******************************************************************************/
 package edu.utah.bmi.nlp.rush.uima;
 
-import edu.utah.bmi.nlp.core.DeterminantValueSet;
-import edu.utah.bmi.nlp.core.IOUtil;
-import edu.utah.bmi.nlp.core.Span;
-import edu.utah.bmi.nlp.rush.core.RuSH3;
+import edu.utah.bmi.nlp.core.*;
+import edu.utah.bmi.nlp.rush.core.RuSH;
+import edu.utah.bmi.nlp.rush.core.SmartChineseCharacterSplitter;
+import edu.utah.bmi.nlp.uima.ae.RuleBasedAEInf;
 import edu.utah.bmi.nlp.uima.common.AnnotationOper;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
@@ -32,6 +32,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.logging.Logger;
 
@@ -41,10 +42,10 @@ import java.util.logging.Logger;
  *
  * @author Jianlin Shi
  */
-public class RuSH_AE extends JCasAnnotator_ImplBase {
+public class RuSH_AE extends JCasAnnotator_ImplBase implements RuleBasedAEInf {
 
     private static Logger logger = IOUtil.getLogger(RuSH_AE.class);
-    private RuSH3 rush;
+    private RuSH rush;
     private boolean autoFixGaps = true;
 
 
@@ -54,7 +55,7 @@ public class RuSH_AE extends JCasAnnotator_ImplBase {
     public static final String PARAM_INSIDE_SECTIONS = "InsideSections";
 
     public static final String PARAM_FIX_GAPS = "AutoFixGaps";
-    public static final String PARAM_RULE_STR = "RuleStr";
+    public static final String PARAM_RULE_STR = DeterminantValueSet.PARAM_RULE_STR;
     public static final String PARAM_SENTENCE_TYPE_NAME = "SentenceTypeName";
 
     //  if this parameter is set, then the adjacent sentences will be annotated in different color-- easy to review
@@ -64,8 +65,6 @@ public class RuSH_AE extends JCasAnnotator_ImplBase {
 
     public static final String PARAM_INCLUDE_PUNCTUATION = "IncludePunctuation";
 
-    //   mLanguage is defined in rule file/string
-    @Deprecated
     public static final String PARAM_LANGUAGE = "Language";
 
     @Deprecated
@@ -75,8 +74,7 @@ public class RuSH_AE extends JCasAnnotator_ImplBase {
     protected boolean includePunctuation = false, differentColoring = false, colorIndicator = false;
     protected static Constructor<? extends Annotation> SentenceTypeConstructor, AlterSentenceTypeConstructor, TokenTypeConstructor;
 
-    //   mLanguage is defined in rule file/string
-    @Deprecated
+
     private String mLanguage;
 
     private LinkedHashSet<Class> sectionClasses = new LinkedHashSet<>();
@@ -84,8 +82,9 @@ public class RuSH_AE extends JCasAnnotator_ImplBase {
     public void initialize(UimaContext cont) {
         String ruleFileName = (String) (cont
                 .getConfigParameterValue(PARAM_RULE_STR));
-        rush = new RuSH3(ruleFileName);
+        rush = new RuSH(ruleFileName);
 //        rush.setDebug(true);
+        rush.setSpecialCharacterSupport(true);
         Object autoFixGapsObj = cont.getConfigParameterValue(PARAM_FIX_GAPS);
         if (autoFixGapsObj != null) {
             autoFixGaps = (Boolean) autoFixGapsObj;
@@ -118,8 +117,6 @@ public class RuSH_AE extends JCasAnnotator_ImplBase {
         if (obj != null && obj instanceof Boolean && (Boolean) obj != false)
             includePunctuation = true;
 
-        rush.setIncludePunctuation(includePunctuation);
-
         obj = cont.getConfigParameterValue(PARAM_LANGUAGE);
         if (obj != null && obj instanceof String) {
             mLanguage = ((String) obj).trim().toLowerCase();
@@ -128,19 +125,15 @@ public class RuSH_AE extends JCasAnnotator_ImplBase {
         }
 
         obj = cont.getConfigParameterValue(PARAM_INSIDE_SECTIONS);
-        if (obj == null)
+        if (obj == null || obj.toString().trim().length() == 0)
             sectionClasses.add(SourceDocumentInformation.class);
         else {
-            String value = (String) obj;
-            if (value.length() == 0)
-                sectionClasses.add(SourceDocumentInformation.class);
-            else
-                for (String sectionName : ((String) obj).split("[\\|,;]")) {
-                    sectionName = sectionName.trim();
-                    if (sectionName.length() > 0) {
-                        sectionClasses.add(AnnotationOper.getTypeClass(DeterminantValueSet.checkNameSpace(sectionName)));
-                    }
+            for (String sectionName : ((String) obj).split("[\\|,;]")) {
+                sectionName = sectionName.trim();
+                if (sectionName.length() > 0) {
+                    sectionClasses.add(AnnotationOper.getTypeClass(DeterminantValueSet.checkNameSpace(sectionName)));
                 }
+            }
         }
 
         try {
@@ -176,16 +169,30 @@ public class RuSH_AE extends JCasAnnotator_ImplBase {
         int sectionBegin = section.getBegin();
         ArrayList<Span> sentences = rush.segToSentenceSpans(text);
         for (Span sentence : sentences) {
+            ArrayList<Span> tokens;
+            if (!rush.tokenRuleEnabled) {
+                switch (mLanguage) {
+                    case "en":
+                        tokens = SimpleParser.tokenizeDecimalSmart(text.substring(sentence.begin, sentence.end), includePunctuation);
+                        saveTokens(jCas, sentence, tokens, sectionBegin);
+                        break;
+                    case "cn":
+                        tokens = SmartChineseCharacterSplitter.tokenizeDecimalSmart(text.substring(sentence.begin, sentence.end), includePunctuation);
+                        saveTokens(jCas, sentence, tokens, sectionBegin);
+                        break;
+                }
+            }
             saveSentence(jCas, sentence, sectionBegin);
         }
 
-        ArrayList<ArrayList<Span>> tokenss = rush.tokenize(sentences, text);
-        for (ArrayList<Span> tokens : tokenss) {
-            for (Span token : tokens) {
-                saveToken(jCas, token.begin, token.end, sectionBegin);
+        if (rush.tokenRuleEnabled) {
+            ArrayList<ArrayList<Span>> tokenss = rush.tokenize(sentences, text);
+            for (ArrayList<Span> tokens : tokenss) {
+                for (Span token : tokens) {
+                    saveToken(jCas, token.begin, token.end, sectionBegin);
+                }
             }
         }
-
 
     }
 
@@ -238,5 +245,10 @@ public class RuSH_AE extends JCasAnnotator_ImplBase {
             typeName = "edu.utah.bmi.nlp.type.system." + typeName;
         }
         return typeName;
+    }
+
+    @Override
+    public LinkedHashMap<String, TypeDefinition> getTypeDefs(String ruleStr) {
+        return new LinkedHashMap<>();
     }
 }

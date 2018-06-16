@@ -15,6 +15,7 @@
  *******************************************************************************/
 package edu.utah.bmi.nlp.RuSH;
 
+import edu.utah.bmi.nlp.core.Span;
 import edu.utah.bmi.nlp.rush.uima.RuSH_AE;
 import edu.utah.bmi.nlp.rush.uima.RuSHTest_AE;
 import edu.utah.bmi.nlp.type.system.SectionBody;
@@ -30,6 +31,8 @@ import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.ArrayList;
 
 /**
  * @Author Jianlin Shi
@@ -137,4 +140,33 @@ public class TestRuSH_AE {
 		analysisEngine.process(jCas);
 		testAnalysisEngine.process(jCas);
 	}
+
+	@Test
+	public void test5() throws AnalysisEngineProcessException, ResourceInitializationException {
+		String text ="Was\n" +
+				"\n" +
+				"6.4.";
+		jCas.reset();
+		jCas.setDocumentText(text);
+		SourceDocumentInformation sourceDocumentInformation = new SourceDocumentInformation(jCas, 0, text.length());
+		sourceDocumentInformation.addToIndexes();
+		SectionBody sectionBody = new SectionBody(jCas, 0, text.length());
+		sectionBody.addToIndexes();
+		analysisEngine = AnalysisEngineFactory.createEngine(
+				RuSH_AE.class,
+				RuSH_AE.PARAM_INSIDE_SECTIONS, "SectionBody",
+				RuSH_AE.PARAM_SENTENCE_TYPE_NAME, "Sentence",
+				RuSH_AE.PARAM_TOKEN_TYPE_NAME, "Token",
+				RuSH_AE.PARAM_RULE_STR, "src/test/resources/edw.tsv",
+				RuSH_AE.PARAM_INCLUDE_PUNCTUATION,true,
+				RuSH_AE.PARAM_FIX_GAPS, true);
+		testAnalysisEngine = AnalysisEngineFactory.createEngine(
+				RuSHTest_AE.class,
+				RuSHTest_AE.PARAM_SENTENCE_TYPE, Annotation.class.getCanonicalName(),
+				RuSHTest_AE.PARAM_PRINT_SPAN, true,
+				RuSHTest_AE.PARAM_PRINT_TEXT, true);
+		analysisEngine.process(jCas);
+		testAnalysisEngine.process(jCas);
+	}
+
 }
