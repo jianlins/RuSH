@@ -1,16 +1,20 @@
 package edu.utah.bmi.nlp.rush.core;
 
-import edu.utah.bmi.nlp.core.Span;
-import org.jetbrains.annotations.NotNull;
 
 public class Marker implements Comparable<Marker> {
+    public enum MARKERTYPE {BEGIN, END}
+
+    ;
     //    use integer float to represent begin, integer+0.5 to represent end.
 //     So that begins and ends won't overwrite
-    public float position;
+    public float position, end;
     public MARKERTYPE type;
+    //    still keep the width for priority comparison
+    public int ruleId, width;
+    public double score;
 
     @Override
-    public int compareTo(@NotNull Marker o) {
+    public int compareTo(Marker o) {
         if (o == null)
             return -1;
         if (position < o.position)
@@ -19,12 +23,21 @@ public class Marker implements Comparable<Marker> {
             return 0;
         else
             return 1;
-
     }
 
-    public enum MARKERTYPE {BEGIN, END}
 
-    ;
+    public Marker(float position) {
+        this.position = position;
+        this.type = null;
+    }
+
+    public Marker(float position, float end, int width) {
+        this.position = position;
+        this.end = end;
+        this.type = null;
+        this.width = width;
+    }
+
 
     public Marker(float position, MARKERTYPE type) {
         this.position = position;
