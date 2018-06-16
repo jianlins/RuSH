@@ -15,16 +15,12 @@
 # *******************************************************************************/
 
 #this list is optimized for shorter rule length rules for semeval were added
-
-
-#stbegin is the marker for sentence fbegin, the span of sentence will start at the fbegin of the captured group
-#stbegin has two scores 0, 1: 0 for true sentence fbegin, 1 for false sentence fbegin which will overwrite 0 when they are overlapping
-#stend is the marker for sentence fbegin, the span of sentence will fend at the fend of the captured group
-#stend has two scores 2, 3: 2 for true sentence fend, 3 for false sentence fend which will overwrite 2 when they are overlapping
-
-@en
-@version3.0
 @maxRepeatLength:100
+
+#stbegin is the marker for sentence begin, the span of sentence will start at the begin of the captured group
+#stbegin has two scores 0, 1: 0 for true sentence begin, 1 for false sentence begin which will overwrite 0 when they are overlapping
+#stend is the marker for sentence begin, the span of sentence will end at the end of the captured group
+#stend has two scores 2, 3: 2 for true sentence end, 3 for false sentence end which will overwrite 2 when they are overlapping
 
 # \d   A digit
 # \C   A capital letter
@@ -215,8 +211,8 @@
 \n(\d.\C	0	stbegin
 \n\s+(\d.\s+\C	0	stbegin
 \n\s+(\d\d.\s+\C	0	stbegin
-\n\d.\)\s+(\C	0	stbegin
-\n\d\d.\)\s+(\C	0	stbegin
+\n\d.)\s+(\C	0	stbegin
+\n\d\d.)\s+(\C	0	stbegin
 \c:\n+(\a	0	stbegin
 \s+\s+(\d\)\s+\C	0	stbegin
 \s+\s+(\d\d\)\s+\C	0	stbegin
@@ -256,7 +252,7 @@
 \s\s(\d\)\C	0	stbegin
 \s\s(\d\)?\s+\C	0	stbegin
 
-\c\w+\d\)\s+\d+\s+(\c	0	stbegin
+\c)\w+\d\)\s+\d+\s+(\c	0	stbegin
 
 \c\w+(\d\)\C	0	stbegin
 \d\)\C+\w+(\d\)\c	0	stbegin
@@ -333,12 +329,10 @@ from \d+ to \d+	3	stend
 \)(.)\s+\n\C	2	stend
 \c(\c)\n+\C	2	stend
 \c(\c)\s+\n+\C	2	stend
-\a)\s+\n\n	2	stend
-\a)\s+\e	2	stend
-\a)\e	2	stend
-\a)\n\n	2	stend
-\a)\n\e	2	stend
-\a)\s+\n\e	2	stend
+\a\s+\n\n	2	stend
+\a\n\n	2	stend
+\a\n\e	2	stend
+\a\s+\n\e	2	stend
 \a\n\n\e	2	stend
 \c)********	2	stend
 \c)**\n	2	stend
@@ -373,7 +367,7 @@ from \d+ to \d+	3	stend
 \d**\n\n	2	stend
 \a\s+\n+**	2	stend
 \a\s+\n\w+**\p+\C	2	stend
-\c.)\s+**\p+\C	2	stend
+\c(.\s+**\p+\C	2	stend
 \d)\s+\n+\d.\s+\C	2	stend
 \d)\s+\n+\d\d.\s+\C	2	stend
 \c)\s+\n+\d.\s+\C	2	stend
@@ -513,8 +507,8 @@ were:\s+\n+\s+\c	3	stend
 
  \n\n\n+ •  	2	stend
 \s+\n\n+\s+\C	2	stend
-\d+.\s+\C+:)\s+\n\n+\s+\C\c+\s+\d+.	3	stend
-\d+.\s+\C\c+:)\s+\n\n+\s+\C\c+\s+\d+.	3	stend
+\d+.\s+\C+(:\s+\n\n+\s+\C\c+\s+\d+.	3	stend
+\d+.\s+\C\c+(:\s+\n\n+\s+\C\c+\s+\d+.	3	stend
 \a\w+_______________	2	stend
 \a(\p)\w+_______________	2	stend
 (\c)\n- \c	2	stend
@@ -523,16 +517,16 @@ were:\s+\n+\s+\c	3	stend
 \c."\s+(\C	0	stbegin
 
 Heart\nFailure	3	stend
- and)\s+\n\n	3	stend
+ and\s+\n\n	3	stend
  that\s+\n\n	3	stend
- for)\s+\n+	3	stend
- had)\s+\n+	3	stend
- have)\s+\n+	3	stend
- has)\s+\n+	3	stend
- \"I)\s+\n\n	3	stend
- I)\s+\n\n	3	stend
-\C+)\s+\n\n	3	stend
-\c+)\s+\n\n	3	stend
+ for\s+\n+	3	stend
+ had\s+\n+	3	stend
+ have\s+\n+	3	stend
+ has\s+\n+	3	stend
+ \"I\s+\n\n	3	stend
+ I\s+\n\n	3	stend
+\(\C+\s+\n\n	3	stend
+\(\c+\s+\n\n	3	stend
 \n(rhabdomyolysis:\n	0	stbegin
 .\s+\n+(\c+\s+\c+\s+\c+\s+\c+:\n	0	stbegin
 .\s+\n+(\c+\s+\c+\s+\c+:\n	0	stbegin
@@ -563,7 +557,7 @@ Heart\nFailure	3	stend
 .\s+(The	0	stbegin
 .\s+(\d.\s+\C	0	stbegin
 .\s+(\d.\C	0	stbegin
-\c.)\s+\d.\C	2	stend
+\c(.\s+\d.\C	2	stend
 
 
 \c)\w+REASON FOR	2	stend
@@ -583,12 +577,12 @@ Heart\nFailure	3	stend
 \d)\w+\w+Reason For	2	stend
 \p)\w+\w+Reason For	2	stend
 R)EASON FOR	0	stbegin
-#REASON FOR THIS EXAMINATION:	2	stend
+#REASON FOR THIS EXAMINATION(:	2	stend
 #REASON FOR\w+(\d	0	stbegin
 #REASON FOR\w+(\C	0	stbegin
 #REASON FOR\w+(\c	0	stbegin
 #REASON FOR\w+(\p	0	stbegin
-#Reason For This Examination:	2	stend
+#Reason For This Examination(:	2	stend
 #Reason For\w+(\d	0	stbegin
 #Reason For\w+(\C	0	stbegin
 #Reason For\w+(\c	0	stbegin
@@ -702,7 +696,7 @@ F)INDINGS:	0	stbegin
 \c(?)\w+	2	stend
 \C(?)\w+	2	stend
 \d(?)\w+	2	stend
-:\w+(?)\w+	3	stend
+:\w+(?\w+	3	stend
 
 
 D(.)\s+\n+\d+.\s+\C	2	stend
@@ -711,7 +705,7 @@ NPO(.)\s+\n+\C	2	stend
 \)(.)\w+\d+.\s+\C	2	stend
 \c+\s+(.)\s+\C\c+	2	stend
 \c+\s+.\s+(\C\c+	0	stbegin
-PM)\n\C	2	stend
+P(M\n\C	2	stend
 \a)\s\s\s\s+Reason:	2	stend
 \s\s\s\s+(Reason:	0	stbegin
 \a)\s\s\s\s+Admitting Diagnosis:	2	stend
@@ -720,11 +714,11 @@ PM)\n\C	2	stend
 \s\s\s\s+(Sex:	0	stbegin
 \a)\s\s\s\s+Discharge Date:	2	stend
 \s\s\s\s+(Discharge Date:	0	stbegin
-daily)\n-	2	stend
-qhs)\n-	2	tend
-daily)\n-	2	stend
-\sqd)\n-	2	stend
-QHS)\n-	2	stend
+dail(y\n-	2	stend
+qh(s\n-	2	stend
+dail(y\n-	2	stend
+\sq(d\n-	2	stend
+QH(S\n-	2	stend
 \a)\s+Refills:	2	stend
 \a)*\s+Refills:	2	stend
 \a\s+(Refills:	0	stbegin
@@ -741,7 +735,7 @@ QHS)\n-	2	stend
 \p)\n+Signed\s	2	stend
 \(End of Report	0	stbegin
 \a)\w+\(End of Report\)	2	stend
-Instructions(:)\n+\a	2	stend
+Instructions(:\n+\a	2	stend
 Instructions:\n+(\a	0	stbegin
 \n+(Follow	0	stbegin
 \a)\w+\n+Follow	2	stend
@@ -927,10 +921,10 @@ Paterna(l	3	stend
 HOSPITAL\w+(.	2	stend
 CENTER\w+.\w+(\C	0	stbegin
 HOSPITAL\w+.\w+(\C	0	stbegin
-\C\c+\w+Surger(y	3	stend
+\C\c+\w+Surgery	3	stend
 
 \c.\c(.)\w+\C\c\c	2	stend
-\wTR.)\w+\C\c\c	2	stend
+\wTR(.\w+\C\c\c	2	stend
 \wTR.\w+(\C)\c\c	0	stbegin
 .)\w+He 	2	stend
 .)\w+His 	2	stend
