@@ -100,7 +100,8 @@ public class RuSH_AE extends JCasAnnotator_ImplBase implements RuleBasedAEInf {
         obj = cont.getConfigParameterValue(PARAM_TOKEN_TYPE_NAME);
         if (obj != null && obj instanceof String) {
             tokenTypeName = ((String) obj).trim();
-            tokenTypeName = checkTypeDomain(tokenTypeName);
+            if (tokenTypeName.length() > 0)
+                tokenTypeName = checkTypeDomain(tokenTypeName);
         } else {
             tokenTypeName = "";
         }
@@ -173,7 +174,7 @@ public class RuSH_AE extends JCasAnnotator_ImplBase implements RuleBasedAEInf {
         ArrayList<Span> sentences = rush.segToSentenceSpans(text);
         for (Span sentence : sentences) {
             ArrayList<Span> tokens;
-            if (!rush.tokenRuleEnabled && TokenType!=null) {
+            if (!rush.tokenRuleEnabled && TokenType != null) {
                 switch (mLanguage) {
                     case "en":
                         tokens = SimpleParser.tokenizeDecimalSmart(text.substring(sentence.begin, sentence.end), includePunctuation);
@@ -188,7 +189,7 @@ public class RuSH_AE extends JCasAnnotator_ImplBase implements RuleBasedAEInf {
             saveSentence(jCas, sentence, sectionBegin);
         }
 
-        if (rush.tokenRuleEnabled  && TokenType!=null) {
+        if (rush.tokenRuleEnabled && TokenType != null) {
             ArrayList<ArrayList<Span>> tokenss = rush.tokenize(sentences, text);
             for (ArrayList<Span> tokens : tokenss) {
                 for (Span token : tokens) {
