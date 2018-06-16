@@ -102,7 +102,7 @@ public class RuSH_AE extends JCasAnnotator_ImplBase implements RuleBasedAEInf {
             tokenTypeName = ((String) obj).trim();
             tokenTypeName = checkTypeDomain(tokenTypeName);
         } else {
-            tokenTypeName = DeterminantValueSet.defaultNameSpace + "Token";
+            tokenTypeName = "";
         }
 
 
@@ -138,12 +138,15 @@ public class RuSH_AE extends JCasAnnotator_ImplBase implements RuleBasedAEInf {
 
         try {
             SentenceType = Class.forName(sentenceTypeName).asSubclass(Annotation.class);
-            TokenType = Class.forName(tokenTypeName).asSubclass(Annotation.class);
             SentenceTypeConstructor = SentenceType.getConstructor(new Class[]{JCas.class, int.class, int.class});
-            TokenTypeConstructor = TokenType.getConstructor(new Class[]{JCas.class, int.class, int.class});
             if (differentColoring) {
                 AlterSentenceType = Class.forName(alterSentenceTypeName).asSubclass(Annotation.class);
                 AlterSentenceTypeConstructor = AlterSentenceType.getConstructor(new Class[]{JCas.class, int.class, int.class});
+            }
+            if (tokenTypeName.length() > 0) {
+                TokenType = Class.forName(tokenTypeName).asSubclass(Annotation.class);
+                TokenTypeConstructor = TokenType.getConstructor(new Class[]{JCas.class, int.class, int.class});
+
             }
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
@@ -170,7 +173,7 @@ public class RuSH_AE extends JCasAnnotator_ImplBase implements RuleBasedAEInf {
         ArrayList<Span> sentences = rush.segToSentenceSpans(text);
         for (Span sentence : sentences) {
             ArrayList<Span> tokens;
-            if (!rush.tokenRuleEnabled) {
+            if (!rush.tokenRuleEnabled && TokenType != null) {
                 switch (mLanguage) {
                     case "en":
                         tokens = SimpleParser.tokenizeDecimalSmart(text.substring(sentence.begin, sentence.end), includePunctuation);
@@ -185,7 +188,7 @@ public class RuSH_AE extends JCasAnnotator_ImplBase implements RuleBasedAEInf {
             saveSentence(jCas, sentence, sectionBegin);
         }
 
-        if (rush.tokenRuleEnabled) {
+        if (rush.tokenRuleEnabled && TokenType != null) {
             ArrayList<ArrayList<Span>> tokenss = rush.tokenize(sentences, text);
             for (ArrayList<Span> tokens : tokenss) {
                 for (Span token : tokens) {
