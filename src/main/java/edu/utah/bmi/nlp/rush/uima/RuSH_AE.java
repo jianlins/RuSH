@@ -16,8 +16,11 @@
 package edu.utah.bmi.nlp.rush.uima;
 
 import edu.utah.bmi.nlp.core.*;
+import edu.utah.bmi.nlp.rush.core.Boundary;
 import edu.utah.bmi.nlp.rush.core.RuSH;
 import edu.utah.bmi.nlp.rush.core.SmartChineseCharacterSplitter;
+import edu.utah.bmi.nlp.type.system.Stbegin;
+import edu.utah.bmi.nlp.type.system.Stend;
 import edu.utah.bmi.nlp.uima.ae.RuleBasedAEInf;
 import edu.utah.bmi.nlp.uima.common.AnnotationOper;
 import org.apache.uima.UimaContext;
@@ -34,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -187,6 +191,7 @@ public class RuSH_AE extends JCasAnnotator_ImplBase implements RuleBasedAEInf {
                 }
             }
             saveSentence(jCas, sentence, sectionBegin);
+
         }
 
         if (rush.tokenRuleEnabled && TokenType != null) {
@@ -194,6 +199,21 @@ public class RuSH_AE extends JCasAnnotator_ImplBase implements RuleBasedAEInf {
             for (ArrayList<Span> tokens : tokenss) {
                 for (Span token : tokens) {
                     saveToken(jCas, token.begin, token.end, sectionBegin);
+                }
+            }
+        }
+        if (logger.isLoggable(Level.FINE)) {
+//             log sentence boundaries
+            for (Boundary boundary : RuSH.logs) {
+                String ruleStr = boundary.getRuleStr();
+                if (boundary.ruleName.equals("stbegin")) {
+                    Stbegin stbegin = new Stbegin(jCas, boundary.getBegin(), boundary.getEnd());
+                    stbegin.setNote(ruleStr);
+                    stbegin.addToIndexes();
+                } else {
+                    Stend stend = new Stend(jCas, boundary.getBegin(), boundary.getEnd());
+                    stend.setNote(ruleStr);
+                    stend.addToIndexes();
                 }
             }
         }
