@@ -48,7 +48,7 @@ import java.util.logging.Logger;
  */
 public class RuSH_AE extends JCasAnnotator_ImplBase implements RuleBasedAEInf {
 
-    private static Logger logger = IOUtil.getLogger(RuSH_AE.class);
+    public static Logger logger = IOUtil.getLogger(RuSH_AE.class);
     private RuSH rush;
     private boolean autoFixGaps = true;
 

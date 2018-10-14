@@ -11,7 +11,7 @@ import static java.lang.Character.isAlphabetic;
 import static java.lang.Character.isDigit;
 
 public class RuSH implements RuSHInf {
-    protected static Logger logger = IOUtil.getLogger(RuSH.class);
+    public static Logger logger = IOUtil.getLogger(RuSH.class);
     protected static FastCNER fcrp;
     protected static final String STBEGIN = "stbegin", STEND = "stend";
     protected HashMap<String, ArrayList<Span>> result;
