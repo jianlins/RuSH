@@ -37,9 +37,9 @@ public class RuSH2 implements RuSHInf{
         String lastCell = row.get(row.size() - 1);
         if (!lastCell.equals("ACTUAL") && !lastCell.equals("PSEUDO"))
 //      compatible to old version rules
-            for (Map.Entry<Integer, Rule> entry : fcrp.fastRule.ruleStore.entrySet()) {
+            for (Map.Entry<Integer, NERRule> entry : fcrp.fastRule.ruleStore.entrySet()) {
                 int id = entry.getKey();
-                Rule singleRule = entry.getValue();
+                NERRule singleRule = entry.getValue();
                 if (!tokenRuleEnabled && singleRule.ruleName.equals(TOKENBEGIN))
                     tokenRuleEnabled = true;
                 if (singleRule.score % 2 != 0)
