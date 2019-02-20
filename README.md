@@ -47,7 +47,7 @@ If you prefer to use the published version on maven central, you can configure y
 <dependency>
   <groupId>edu.utah.bmi.nlp</groupId>
   <artifactId>rush</artifactId>
-  <version>2.0</version>
+  <version>1.3.1.8-SNAPSHOT</version>
 </dependency>
 ```
 Note: if this maven distribution does not include the RuSH rule file, you will need to download it from [here](https://github.com/jianlins/RuSH/blob/master/conf/rush_rules.csv). 
