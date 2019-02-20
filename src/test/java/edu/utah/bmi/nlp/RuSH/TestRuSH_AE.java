@@ -169,4 +169,30 @@ public class TestRuSH_AE {
 		testAnalysisEngine.process(jCas);
 	}
 
+	@Test
+	public void test6() throws AnalysisEngineProcessException, ResourceInitializationException {
+		String text ="ALLERGIES: Penicillins.\\n";
+		jCas.reset();
+		jCas.setDocumentText(text);
+		SourceDocumentInformation sourceDocumentInformation = new SourceDocumentInformation(jCas, 0, text.length());
+		sourceDocumentInformation.addToIndexes();
+		SectionBody sectionBody = new SectionBody(jCas, 0, text.length());
+		sectionBody.addToIndexes();
+		analysisEngine = AnalysisEngineFactory.createEngine(
+				RuSH_AE.class,
+				RuSH_AE.PARAM_INSIDE_SECTIONS, "SectionBody",
+				RuSH_AE.PARAM_SENTENCE_TYPE_NAME, "Sentence",
+				RuSH_AE.PARAM_TOKEN_TYPE_NAME, "Token",
+				RuSH_AE.PARAM_RULE_STR, "conf/rush_rules.tsv",
+				RuSH_AE.PARAM_INCLUDE_PUNCTUATION,true,
+				RuSH_AE.PARAM_FIX_GAPS, true);
+		testAnalysisEngine = AnalysisEngineFactory.createEngine(
+				RuSHTest_AE.class,
+				RuSHTest_AE.PARAM_SENTENCE_TYPE, Annotation.class.getCanonicalName(),
+				RuSHTest_AE.PARAM_PRINT_SPAN, true,
+				RuSHTest_AE.PARAM_PRINT_TEXT, true);
+		analysisEngine.process(jCas);
+		testAnalysisEngine.process(jCas);
+	}
+
 }
