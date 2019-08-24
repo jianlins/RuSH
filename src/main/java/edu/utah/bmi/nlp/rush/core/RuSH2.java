@@ -14,7 +14,7 @@ import edu.utah.bmi.nlp.rush.core.Marker.MARKERTYPE;
 
 public class RuSH2 implements RuSHInf{
     protected static Logger logger = IOUtil.getLogger(RuSH2.class);
-    protected static FastCNER fcrp;
+    protected FastCNER fcrp;
     protected static final String STBEGIN = "stbegin", STEND = "stend";
     protected HashMap<String, ArrayList<Span>> result;
     public boolean autofixGap = true;

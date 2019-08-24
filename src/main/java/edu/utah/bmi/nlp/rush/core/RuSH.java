@@ -12,7 +12,7 @@ import static java.lang.Character.isDigit;
 
 public class RuSH implements RuSHInf {
     public static Logger logger = IOUtil.getLogger(RuSH.class);
-    protected static FastCNER fcrp;
+    protected FastCNER fcrp;
     protected static final String STBEGIN = "stbegin", STEND = "stend";
     protected HashMap<String, ArrayList<Span>> result;
     public boolean autofixGap = true;
