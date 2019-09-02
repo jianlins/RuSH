@@ -16,7 +16,7 @@
 package edu.utah.bmi.nlp.RuSH;
 
 import edu.utah.bmi.nlp.core.Span;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.TreeSet;
 

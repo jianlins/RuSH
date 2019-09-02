@@ -17,8 +17,8 @@ package edu.utah.bmi.nlp.RuSH;
 
 import edu.utah.bmi.nlp.core.Span;
 import edu.utah.bmi.nlp.rush.core.RuSH2;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 
@@ -39,7 +39,7 @@ public class TestRuSH2 {
 
     }
 
-    @Before
+    @BeforeEach
     public void initiate() {
         rush2 = new RuSH2("conf/rush_rules_v3.xlsx");
 

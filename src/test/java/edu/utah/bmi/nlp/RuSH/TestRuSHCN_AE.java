@@ -31,8 +31,8 @@ import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,7 +44,7 @@ public class TestRuSHCN_AE {
 	JCas jCas;
 	AnalysisEngine analysisEngine, testAnalysisEngine;
 
-	@Before
+	@BeforeEach
 	public void init() throws UIMAException {
 		String typeDescriptor = "desc/type/All_Types";
 		jCas = JCasFactory.createJCas(typeDescriptor);

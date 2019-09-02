@@ -21,8 +21,8 @@ import edu.utah.bmi.nlp.core.NERRule;
 import edu.utah.bmi.nlp.core.Rule;
 import edu.utah.bmi.nlp.core.Span;
 import edu.utah.bmi.nlp.fastcner.FastCNER;
-import junit.framework.TestCase;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,21 +34,23 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import static edu.utah.bmi.nlp.core.DeterminantValueSet.Determinants.ACTUAL;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Created by
  *
  * @author Jianlin Shi on 4/30/17.
  */
-public class FastCNERExcludeTest extends TestCase {
+public class FastCNERExcludeTest {
     public static Logger logger = IOUtil.getLogger(FastCNERExcludeTest.class);
 
-    @BeforeClass
-    public void setUp() {
+    @BeforeAll
+    public static void setUp() {
         logger.setLevel(Level.FINEST);
     }
 
 
+    @Test
     public void testProcessString() throws Exception {
         HashMap<Integer, NERRule> rules = new HashMap<>();
 
@@ -62,6 +64,7 @@ public class FastCNERExcludeTest extends TestCase {
 //        assertTrue(evalMatch(result.get("rule5"), new Span[]{new Span(2, 4)}));
     }
 
+    @Test
     public void test2() {
         HashMap<Integer, NERRule> rules = new HashMap<>();
 
@@ -74,7 +77,7 @@ public class FastCNERExcludeTest extends TestCase {
 //        assertTrue(evalMatch(result.get("rule5"), new Span[]{new Span(8, 10)}));
     }
 
-
+    @Test
     public void test3() {
         HashMap<Integer, NERRule> rules = new HashMap<>();
 
@@ -86,7 +89,7 @@ public class FastCNERExcludeTest extends TestCase {
         printMatches(result, a, fcrp);
 
     }
-
+    @Test
     public void test3_5() {
         HashMap<Integer, NERRule> rules = new HashMap<>();
 //        rules.put(0,new NERRule(0, "b\\c+)d", "TEST", 0.1, ACTUAL));
@@ -125,7 +128,7 @@ public class FastCNERExcludeTest extends TestCase {
         assertEquals(0, result.size());
 
     }
-
+    @Test
     public void test4() {
         HashMap<Integer, NERRule> rules = new HashMap<>();
         rules.put(0, new NERRule(0, "b\\c+)D", "TEST", 0.1, ACTUAL));
@@ -167,7 +170,7 @@ public class FastCNERExcludeTest extends TestCase {
         assertEquals(1, result.get("TEST").size());
         assertEquals("bccc", result.get("TEST").get(0).text);
     }
-
+    @Test
     public void test5() {
         HashMap<Integer, NERRule> rules = new HashMap<>();
         rules.put(0, new NERRule(0, "c(\\d[|\\d][|\\d][|\\d])", "TEST", 0.1, ACTUAL));
@@ -203,7 +206,7 @@ public class FastCNERExcludeTest extends TestCase {
 
 //    \C[\c+|\C+] [|\C\c+ |\C+ ][|\C\c+ |\C+ ][|\C\c+ |\C+ ][|\C\c+ |\C+ ][|\C\c+ |\C+ ][Division|
 
-
+    @Test
     public void test6() {
         HashMap<Integer, NERRule> rules = new HashMap<>();
 //        ruleStore.add(new NERRule(0, "\\C[\\c+|\\C+] [|\\C\\c+ |\\C+ ][|\\C\\c+ |\\C+ ][|\\C\\c+ |\\C+ ][|\\C\\c+ |\\C+ ][|\\C\\c+ |\\C+ ][Division|divsion|ICU|SCIU|CCU|DEPARTMENT|Department|department|Dept|DEPT]", "TEST", 0.1, ACTUAL));
@@ -231,7 +234,7 @@ public class FastCNERExcludeTest extends TestCase {
         assertEquals("Addd Doo Surgery", result.get("TEST").get(0).text);
 
     }
-
+    @Test
     public void test7() {
         HashMap<Integer, NERRule> rules = new HashMap<>();
 //        ruleStore.add(new NERRule(0, "\\C[\\c+|\\C+] [|\\C\\c+ |\\C+ ][|\\C\\c+ |\\C+ ][|\\C\\c+ |\\C+ ][|\\C\\c+ |\\C+ ][|\\C\\c+ |\\C+ ][Division|divsion|ICU|SCIU|CCU|DEPARTMENT|Department|department|Dept|DEPT]", "TEST", 0.1, ACTUAL));
@@ -254,7 +257,7 @@ public class FastCNERExcludeTest extends TestCase {
 
     }
 
-
+    @Test
     public void test8() {
         HashMap<Integer, NERRule> rules = new HashMap<>();
 //        ruleStore.add(new NERRule(0, "\\C[debug\\c+|\\C+] [|\\C\\c+ |\\C+ ][|\\C\\c+ |\\C+ ][|\\C\\c+ |\\C+ ][|\\C\\c+ |\\C+ ][|\\C\\c+ |\\C+ ][Division|divsion|ICU|SCIU|CCU|DEPARTMENT|Department|department|Dept|DEPT]", "TEST", 0.1, ACTUAL));
@@ -278,7 +281,7 @@ public class FastCNERExcludeTest extends TestCase {
         assertEquals("DA CO  HOS", result.get("TEST").get(0).text);
 
     }
-
+    @Test
     public void test9() {
         HashMap<Integer, NERRule> rules = new HashMap<>();
 //        ruleStore.add(new NERRule(0, "\\C[debug\\c+|\\C+] [|\\C\\c+ |\\C+ ][|\\C\\c+ |\\C+ ][|\\C\\c+ |\\C+ ][|\\C\\c+ |\\C+ ][|\\C\\c+ |\\C+ ][Division|divsion|ICU|SCIU|CCU|DEPARTMENT|Department|department|Dept|DEPT]", "TEST", 0.1, ACTUAL));
@@ -300,7 +303,7 @@ public class FastCNERExcludeTest extends TestCase {
         printMatches(result, input, fcrp);
         assert (evalMatch(result.get("TEST"), new Span[]{new Span(4, 7)}));
     }
-
+    @Test
     public void test10() {
         HashMap<Integer, NERRule> rules = new HashMap<>();
 //        ruleStore.add(new NERRule(0, "\\C[debug\\c+|\\C+] [|\\C\\c+ |\\C+ ][|\\C\\c+ |\\C+ ][|\\C\\c+ |\\C+ ][|\\C\\c+ |\\C+ ][|\\C\\c+ |\\C+ ][Division|divsion|ICU|SCIU|CCU|DEPARTMENT|Department|department|Dept|DEPT]", "TEST", 0.1, ACTUAL));
@@ -321,7 +324,7 @@ public class FastCNERExcludeTest extends TestCase {
         printMatches(result, input, fcrp);
         assert (evalMatch(result.get("TEST"), new Span[]{new Span(0, 21)}));
     }
-
+    @Test
     public void test11() {
         HashMap<Integer, NERRule> rules = new HashMap<>();
         rules.put(0, new NERRule(0, "[([|\\c+|\\C+]\\d\\d)]", "TEST", 0.1, ACTUAL));
@@ -336,7 +339,7 @@ public class FastCNERExcludeTest extends TestCase {
         printMatches(result, input, fcrp);
         assert (evalMatch(result.get("TEST"), new Span[]{new Span(3, 7)}));
     }
-
+    @Test
     public void test12() {
         HashMap<Integer, NERRule> rules = new HashMap<>();
         rules.put(0, new NERRule(0, "\\[([|\\c+|\\C+]\\d\\d+)\\]", "TEST", 0.1, ACTUAL));
@@ -351,7 +354,7 @@ public class FastCNERExcludeTest extends TestCase {
         printMatches(result, input, fcrp);
         assert (evalMatch(result.get("TEST"), new Span[]{new Span(3, 9)}));
     }
-
+    @Test
     public void test13() {
 
         HashMap<Integer, NERRule> rules = new HashMap<>();
@@ -359,7 +362,6 @@ public class FastCNERExcludeTest extends TestCase {
         FastCNER fcrp;
         String input = "Vital signs temperature 100.6 .\n";
         HashMap<String, ArrayList<Span>> result;
-
 
 
         input = "PT 14.2 , PTT 108.5 , INR 1.3 .";
@@ -384,7 +386,7 @@ public class FastCNERExcludeTest extends TestCase {
 
 
     }
-
+    @Test
     public void test14() {
 
         HashMap<Integer, NERRule> rules = new HashMap<>();
@@ -402,7 +404,7 @@ public class FastCNERExcludeTest extends TestCase {
 
 
     }
-
+    @Test
     public void test15() {
         String rule = "T\\s+1\\d\\d.\\d\t0.1\tFever_present";
         FastCNER fcrp;

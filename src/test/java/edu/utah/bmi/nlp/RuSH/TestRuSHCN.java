@@ -18,7 +18,7 @@ package edu.utah.bmi.nlp.RuSH;
 import edu.utah.bmi.nlp.core.Span;
 import edu.utah.bmi.nlp.fastcner.FastCNER;
 import edu.utah.bmi.nlp.rush.core.RuSH;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
