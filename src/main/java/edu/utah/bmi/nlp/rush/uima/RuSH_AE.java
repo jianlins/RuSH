@@ -93,6 +93,7 @@ public class RuSH_AE extends JCasAnnotator_ImplBase implements RuleBasedAEInf {
         if (autoFixGapsObj != null) {
             autoFixGaps = (Boolean) autoFixGapsObj;
         }
+        rush.autoFixGaps = autoFixGaps;
         String sentenceTypeName, alterSentenceTypeName = null, tokenTypeName;
         Object obj = cont.getConfigParameterValue(PARAM_SENTENCE_TYPE_NAME);
         if (obj != null && obj instanceof String) {

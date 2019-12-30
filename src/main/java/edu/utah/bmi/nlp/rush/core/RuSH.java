@@ -15,7 +15,7 @@ public class RuSH implements RuSHInf {
     protected FastCNER fcrp;
     protected static final String STBEGIN = "stbegin", STEND = "stend";
     protected HashMap<String, ArrayList<Span>> result;
-    public boolean autofixGap = true;
+    public boolean autoFixGaps = true;
     protected static final String TOKENBEGIN = "tobegin", TOKENEND = "toend";
     public boolean tokenRuleEnabled = false;
     public boolean fillTextInSpan = false;
@@ -52,7 +52,7 @@ public class RuSH implements RuSHInf {
 
     }
 
-    protected void fixGap(String text, int previousEnd, int thisBegin) {
+    protected void fixGap(String text, ArrayList<Span> sentences, int previousEnd, int thisBegin) {
         int counter = 0, begin = 0, end = 0;
         char[] gapChars = text.substring(previousEnd, thisBegin).toCharArray();
         for (int i = 0; i < thisBegin - previousEnd; i++) {
@@ -70,7 +70,7 @@ public class RuSH implements RuSHInf {
         if (counter > 5) {
             begin += previousEnd;
             end = end + previousEnd + 1;
-            Span sentence = new Span(begin, end);
+            sentences.add(new Span(begin, end));
         }
     }
 
@@ -110,8 +110,8 @@ public class RuSH implements RuSHInf {
         for (int i = 0; i < markers.size(); i++) {
             Marker thisMarker = markers.get(i);
             if (sentenceStarted) {
-                if (autofixGap && sentences.size() > 0) {
-                    fixGap(text, sentences.get(sentences.size() - 1).end, stBegin);
+                if (autoFixGaps && sentences.size() > 0) {
+                    fixGap(text, sentences, sentences.get(sentences.size() - 1).end, stBegin);
                 }
                 if (thisMarker.type == Marker.MARKERTYPE.END) {
                     if (fillTextInSpan) {
