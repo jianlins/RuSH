@@ -3,6 +3,7 @@ package edu.utah.bmi.nlp.fastcner;
 import edu.utah.bmi.nlp.core.DeterminantValueSet;
 import edu.utah.bmi.nlp.core.DeterminantValueSet.Determinants;
 import edu.utah.bmi.nlp.core.IOUtil;
+import edu.utah.bmi.nlp.core.NERRule;
 import edu.utah.bmi.nlp.core.Rule;
 
 import java.util.ArrayList;

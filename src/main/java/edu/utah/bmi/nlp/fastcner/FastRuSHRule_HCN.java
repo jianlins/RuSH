@@ -1,9 +1,6 @@
 package edu.utah.bmi.nlp.fastcner;
 
-import edu.utah.bmi.nlp.core.DeterminantValueSet;
-import edu.utah.bmi.nlp.core.IOUtil;
-import edu.utah.bmi.nlp.core.Rule;
-import edu.utah.bmi.nlp.core.WildCardChecker;
+import edu.utah.bmi.nlp.core.*;
 import edu.utah.bmi.nlp.fastner.FastRule;
 import edu.utah.bmi.nlp.rush.core.Marker;
 import edu.utah.bmi.nlp.rush.core.Marker.MARKERTYPE;

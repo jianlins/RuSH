@@ -1,10 +1,13 @@
 package edu.utah.bmi.nlp.rush.core;
 
 import edu.utah.bmi.nlp.core.IOUtil;
+import edu.utah.bmi.nlp.core.SimpleParser;
 import edu.utah.bmi.nlp.core.Span;
 import edu.utah.bmi.nlp.core.WildCardChecker;
 import edu.utah.bmi.nlp.fastcner.FastRuSHFactory;
 import edu.utah.bmi.nlp.fastcner.FastRuSHRule_H;
+import edu.utah.bmi.nlp.fastcner.FastRuSHRule_HCN;
+import org.apache.uima.examples.tokenizer.SimpleTokenAndSentenceAnnotator;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -25,6 +28,7 @@ public class RuSH implements RuSHInf {
     public boolean fillTextInSpan = false;
     protected Map<String, ArrayList<Marker>> result;
     public boolean tokenRuleEnabled;
+    public String mLanguage = "en";
 
     public RuSH(String ruleStr) {
         initiate(ruleStr);
@@ -32,6 +36,9 @@ public class RuSH implements RuSHInf {
 
     public void initiate(String ruleStr) {
         fcrp = FastRuSHFactory.createFastRuSHRule(ruleStr);
+        if (fcrp instanceof FastRuSHRule_HCN) {
+            mLanguage = "cn";
+        }
         this.tokenRuleEnabled = fcrp.tokenRuleEnabled;
     }
 
@@ -125,7 +132,7 @@ public class RuSH implements RuSHInf {
                     tokenStarted = true;
                 } else if (tokens.size() > 0) {
                     if (fillTextInSpan) {
-                        Span lastToken=tokens.get(tokens.size() - 1);
+                        Span lastToken = tokens.get(tokens.size() - 1);
                         lastToken.setEnd(thisMarker.getPosition());
                         lastToken.setText(text.substring(lastToken.begin, lastToken.end));
 
@@ -146,87 +153,104 @@ public class RuSH implements RuSHInf {
      */
     public ArrayList<ArrayList<Span>> tokenize(ArrayList<Span> sentences, String text) {
         ArrayList<ArrayList<Span>> tokenss = new ArrayList<>();
+        ArrayList<Span> tokens = new ArrayList<>();
+        if (!result.containsKey("to")) {
+            for (Span sentence : sentences) {
+                if (mLanguage.equals("en")) {
+                    tokens = SimpleParser.tokenizeDecimalSmart(text.substring(sentence.begin, sentence.end), true, 0, true);
+                } else {
+                    tokens = SmartChineseCharacterSplitter.tokenizeDecimalSmart(text.substring(sentence.begin, sentence.end), true, 0);
+                }
+                for (Span token : tokens) {
+                    token.begin += sentence.begin;
+                    token.end += sentence.begin;
+                    if (fillTextInSpan) {
+                        token.text = text.substring(token.begin, token.end);
+                    }
+                }
+                tokenss.add(tokens);
+            }
 
-        tokenss.add(new ArrayList<>());
-        ArrayList<Span> tokens;
-        ArrayList<Marker> markers = result.get("to");
-        int toBegin = 0;
-        boolean tokenStarted = false;
-        int toEnd = 0, toBeginId, toEndId = 0;
-        int sentenceId = 0;
-        tokens = tokenss.get(tokenss.size() - 1);
-        Span currentSentence = sentences.get(sentenceId);
-        for (int i = 0; i < markers.size(); i++) {
-            Marker thisMarker = markers.get(i);
-            int thisPosition = thisMarker.getPosition();
-            if (sentenceId == sentences.size())
-                break;
-            if (tokenStarted) {
-                if (thisMarker.type == MARKERTYPE.END) {
-                    toEnd = thisPosition;
-                    if (tokens.size() > 0) {
-                        if (toBegin > currentSentence.end) {
-                            sentenceId++;
-                            currentSentence = sentences.get(sentenceId);
-                            tokenss.add(new ArrayList<>());
-                            tokens = tokenss.get(tokenss.size() - 1);
-                        } else if (toEnd > currentSentence.end) {
+        } else {
+            tokenss.add(new ArrayList<>());
+            ArrayList<Marker> markers = result.get("to");
+            int toBegin = 0;
+            boolean tokenStarted = false;
+            int toEnd = 0, toBeginId, toEndId = 0;
+            int sentenceId = 0;
+            tokens = tokenss.get(tokenss.size() - 1);
+            Span currentSentence = sentences.get(sentenceId);
+            for (int i = 0; i < markers.size(); i++) {
+                Marker thisMarker = markers.get(i);
+                int thisPosition = thisMarker.getPosition();
+                if (sentenceId == sentences.size())
+                    break;
+                if (tokenStarted) {
+                    if (thisMarker.type == MARKERTYPE.END) {
+                        toEnd = thisPosition;
+                        if (tokens.size() > 0) {
+                            if (toBegin > currentSentence.end) {
+                                sentenceId++;
+                                currentSentence = sentences.get(sentenceId);
+                                tokenss.add(new ArrayList<>());
+                                tokens = tokenss.get(tokenss.size() - 1);
+                            } else if (toEnd > currentSentence.end) {
 //                            the token is not appropriately tokenized.
-                            if (fillTextInSpan)
-                                tokens.add(new Span(toBegin, currentSentence.end, text.substring(toBegin, currentSentence.end)));
-                            else
-                                tokens.add(new Span(toBegin, currentSentence.end));
+                                if (fillTextInSpan)
+                                    tokens.add(new Span(toBegin, currentSentence.end, text.substring(toBegin, currentSentence.end)));
+                                else
+                                    tokens.add(new Span(toBegin, currentSentence.end));
+                                sentenceId++;
+                                if (sentenceId >= sentences.size())
+                                    break;
+                                currentSentence = sentences.get(sentenceId);
+                                tokenss.add(new ArrayList<>());
+                                tokens = tokenss.get(tokenss.size() - 1);
+                                toBegin = currentSentence.begin;
+                            }
+
+                        }
+                        if (fillTextInSpan) {
+                            tokens.add(new Span(toBegin, toEnd, text.substring(toBegin, toEnd)));
+                        } else
+                            tokens.add(new Span(toBegin, toEnd));
+                        tokenStarted = false;
+                    }
+                } else {
+                    if (thisMarker.type == MARKERTYPE.BEGIN) {
+                        // new token start                    }
+                        toBegin = thisPosition;
+                        tokenStarted = true;
+                    } else if (tokens.size() > 0) {
+                        // continued TOKENEND marker
+                        if (thisPosition > currentSentence.end) {
+//                        if the token is not appropriately tokenized.
+                            Span lastToken = tokens.get(tokens.size() - 1);
+                            lastToken.setEnd(currentSentence.end);
+                            if (fillTextInSpan) {
+                                lastToken.setText(text.substring(lastToken.begin, lastToken.end));
+                            }
                             sentenceId++;
                             currentSentence = sentences.get(sentenceId);
                             tokenss.add(new ArrayList<>());
                             tokens = tokenss.get(tokenss.size() - 1);
                             toBegin = currentSentence.begin;
                         }
-
-                    }
-                    if (fillTextInSpan) {
-                        tokens.add(new Span(toBegin, toEnd, text.substring(toBegin, toEnd)));
-                    } else
-                        tokens.add(new Span(toBegin, toEnd));
-                    tokenStarted = false;
-                }
-            } else {
-                if (thisMarker.type == MARKERTYPE.BEGIN) {
-                    // new token start                    }
-                    toBegin = thisPosition;
-                    tokenStarted = true;
-                } else if (tokens.size() > 0) {
-                    // continued TOKENEND marker
-                    if (thisPosition > currentSentence.end) {
-//                        if the token is not appropriately tokenized.
-                        Span lastToken = tokens.get(tokens.size() - 1);
-                        lastToken.setEnd(currentSentence.end);
                         if (fillTextInSpan) {
-                            lastToken.setText(text.substring(lastToken.begin, lastToken.end));
-                        }
-                        sentenceId++;
-                        currentSentence = sentences.get(sentenceId);
-                        tokenss.add(new ArrayList<>());
-                        tokens = tokenss.get(tokenss.size() - 1);
-                        toBegin = currentSentence.begin;
-                    }
-                    if (fillTextInSpan) {
-                        tokens.add(new Span(toBegin, toEnd, text.substring(toBegin, toEnd)));
-                    } else
-                        tokens.add(new Span(toBegin, toEnd));
+                            tokens.add(new Span(toBegin, toEnd, text.substring(toBegin, toEnd)));
+                        } else
+                            tokens.add(new Span(toBegin, toEnd));
 
-                    tokenStarted = false;
+                        tokenStarted = false;
+                    }
                 }
             }
         }
 
-
         int lastSentence = tokenss.size() - 1;
         if (tokenss.get(lastSentence).
 
-                size() == 0)
-
-        {
+                size() == 0) {
             tokenss.remove(lastSentence);
         }
         return tokenss;
