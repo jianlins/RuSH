@@ -97,7 +97,7 @@ public class TestRuSHCN {
 
     @Test
     public void testTokenizer2(){
-        String input="患者血压123/88mmHg，呼吸3.0次/分。";
+        String input="患者血压123/88mmHg，呼吸3.0次/分。神志清楚，光反灵敏。";
         String rule="@cn\n" +
 //                "\\b(\\a\t0\tstbegin\n" +
 //                "\\a\\e\t2\tstend\n" +
@@ -121,7 +121,7 @@ public class TestRuSHCN {
 
     @Test
     public void testSimpleTokenizer(){
-        String input="患者血压123/88mmHg，呼吸3.0次/分。";
+        String input="患者血压123/88mmHg，呼吸3.0次/分。神志清楚，光反灵敏。";
         String rule="@cn\n" +
                 "\\b(\\a\t0\tstbegin\n" +
                 "\\a\\e\t2\tstend\n" ;
@@ -130,6 +130,27 @@ public class TestRuSHCN {
         ArrayList<Span> sentences = rush.segToSentenceSpans(input);
         ArrayList<ArrayList<Span>> tokens = rush.tokenize(sentences, input);
         System.out.println(tokens);
+        for(ArrayList<Span>token:tokens){
+            System.out.println(token);
+        }
+    }
+
+    @Test
+    public void testSentenceSeg(){
+        String input="患者血压123/88mmHg，呼吸3.0次/分。神志清楚，光反灵敏。";
+        String rule="@cn\n" +
+                "。(\\a\t0\tstbegin\n" +
+                "\\b(\\a\t0\tstbegin\n" +
+                "。)\t2\tstend\n"+
+                "\\a\\e\t2\tstend\n" ;
+        rush=new RuSH(rule);
+        rush.fillTextInSpan=true;
+        ArrayList<Span> sentences = rush.segToSentenceSpans(input);
+        ArrayList<ArrayList<Span>> tokens = rush.tokenize(sentences, input);
+        assert (sentences.size()==2);
+        assert(tokens.size()==2);
+        assert(tokens.get(0).size()==16);
+        assert(tokens.get(1).size()==10);
         for(ArrayList<Span>token:tokens){
             System.out.println(token);
         }
