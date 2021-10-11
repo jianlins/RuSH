@@ -11,7 +11,7 @@
         <vendor/>
         <configurationParameters>
             <configurationParameter>
-                <name>RuleFile</name>
+                <name>RuleFileOrStr</name>
                 <type>String</type>
                 <multiValued>false</multiValued>
                 <mandatory>true</mandatory>
@@ -49,7 +49,7 @@
         </configurationParameters>
         <configurationParameterSettings>
             <nameValuePair>
-                <name>RuleFile</name>
+                <name>RuleFileOrStr</name>
                 <value>
                     <string>
                         conf/rush_rules.csv
