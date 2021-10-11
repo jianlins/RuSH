@@ -82,6 +82,8 @@ public class FastRuSHRule_H extends FastCRuleSB implements FastRuSHRule {
             // if the fend of a rule is met
 
             if (rule.containsKey(END)) {
+                if (matchEnd == 0)
+                    matchEnd = currentPosition;
                 addDeterminants(text, rule, matches, ruleStartPosition, matchBegin, matchEnd, currentPosition);
             }
             // if the current token match the element of a rule
@@ -105,15 +107,13 @@ public class FastRuSHRule_H extends FastCRuleSB implements FastRuSHRule {
 
         } else if (currentPosition == textChars.length && rule.containsKey(END)) {
             if (matchEnd == 0)
-                addDeterminants(text, rule, matches, ruleStartPosition, matchBegin, currentPosition, currentPosition);
-            else
-                addDeterminants(text, rule, matches, ruleStartPosition, matchBegin, matchEnd, currentPosition);
+                matchEnd = currentPosition;
+            addDeterminants(text, rule, matches, ruleStartPosition, matchBegin, matchEnd, currentPosition);
         } else if (currentPosition == textChars.length && rule.containsKey('\\') && ((HashMap) rule.get('\\')).containsKey('e')) {
             HashMap deterRule = ((HashMap) ((HashMap) rule.get('\\')).get('e'));
             if (matchEnd == 0)
-                addDeterminants(text, deterRule, matches, ruleStartPosition, matchBegin, currentPosition, currentPosition);
-            else
-                addDeterminants(text, deterRule, matches, ruleStartPosition, matchBegin, matchEnd, currentPosition);
+                matchEnd = currentPosition;
+            addDeterminants(text, deterRule, matches, ruleStartPosition, matchBegin, matchEnd, currentPosition);
         } else if (currentPosition == textChars.length && rule.containsKey(')')) {
             HashMap deterRule = (HashMap) rule.get(')');
             if (deterRule.containsKey(END)) {
@@ -392,9 +392,9 @@ public class FastRuSHRule_H extends FastCRuleSB implements FastRuSHRule {
      */
     protected void addDeterminants(String text, HashMap rule, Map<String, HashMap<Float, Marker>> matches, int ruleStartPosition,
                                    int matchBegin, int matchEnd, int currentPosition) {
+
         HashMap<DeterminantValueSet.Determinants, Integer> deterRule = (HashMap<DeterminantValueSet.Determinants, Integer>) rule.get(END);
-        int end = matchEnd == 0 ? currentPosition : matchEnd;
-//      rule  error detection
+        int end = matchEnd == -1 ? currentPosition : matchEnd;
         if (matchBegin > end) {
             StringBuilder sb = new StringBuilder();
             for (Object key : deterRule.keySet()) {
@@ -402,7 +402,7 @@ public class FastRuSHRule_H extends FastCRuleSB implements FastRuSHRule {
                 sb.append(getRule(rulePos).toString());
                 sb.append("\n");
             }
-            logger.warning("Rule definition error ----matched fbegin > matched fend\n" +
+            logger.warning("Rule definition error ----matched begin > matched end\n" +
                     "check the following rules: \n" + sb.toString());
             int snippetBegin = matchBegin - 100;
             snippetBegin = snippetBegin < 0 ? 0 : snippetBegin;
@@ -410,63 +410,60 @@ public class FastRuSHRule_H extends FastCRuleSB implements FastRuSHRule {
             snippetEnd = snippetEnd > text.length() ? text.length() : snippetEnd;
             logger.warning("try to match span: " + text.substring(snippetBegin, end) + "<*>"
                     + text.substring(end, matchBegin) + "<*>" + text.substring(matchBegin, snippetEnd));
+            return;
 
         }
-        int width = end - matchBegin;
-        float begin = matchBegin + offset;
-        end += offset;
-        Marker currentMarker;
+        Marker currentSpan = new Marker(matchBegin + offset, end + offset, text.substring(matchBegin, end));
 
+        currentSpan.type = MARKERTYPE.END;
         if (logger.isLoggable(Level.FINEST))
-            logger.finest("Try to addDeterminants: " + begin + ", " + end
-                    + "\t" + text.substring(Math.round(begin), Math.round(end)));
-
+            logger.finest("Try to addDeterminants: " + currentSpan.begin + ", " + currentSpan.end + "\t" + currentSpan.text);
 
         for (Object key : deterRule.keySet()) {
-            currentMarker = new Marker(begin, end, currentPosition - ruleStartPosition);
-            HashMap<Float, Marker> matchedSpans = new HashMap<>();
+            HashMap<Float, Marker> currentSpanList = new HashMap<>();
             int rulePos = deterRule.get(key);
-            Rule matchedRule = this.ruleStore.get(rulePos);
-            double score = matchedRule.score;
-            String type = (String) key;
-            currentMarker.ruleId = rulePos;
-            currentMarker.score = score;
-            if (type.endsWith("end")) {
-//                currentMarker.position += 0.6f;
-                currentMarker.position = currentMarker.end - 0.4f;
-                currentMarker.type = MARKERTYPE.END;
-                if (!typeMergeMap.containsKey(type))
-                    typeMergeMap.put(type, type.substring(0, type.length() - 3));
-                type = typeMergeMap.get(type);
-            } else {
-//               assume the type is "xxxbegin";
-                currentMarker.type = MARKERTYPE.BEGIN;
-                if (!typeMergeMap.containsKey(type))
-                    typeMergeMap.put(type, type.substring(0, type.length() - 5));
-                type = typeMergeMap.get(type);
-            }
-            currentMarker.ruleId = rulePos;
-            currentMarker.score = score;
+            double score = getScore(rulePos);
+            currentSpan.ruleId = rulePos;
+            currentSpan.score = score;
+            if (key.equals("stend"))
+                currentSpan.type = MARKERTYPE.END;
+            else
+                currentSpan.type = MARKERTYPE.BEGIN;
             if (logger.isLoggable(Level.FINEST))
                 logger.finest("\t\tRule Id: " + rulePos + "\t" + key + "\t" + getRule(rulePos).type + "\t" + getRuleString(rulePos));
 //          If needed, implement your own selection ruleStore and score updating logic below
-            if (matches.containsKey(type)) {
+            if (matches.containsKey(key)) {
 //              because the ruleStore are all processed at the same time from the input left to the input right,
 //                it becomes more efficient to compare the overlaps
-                matchedSpans = matches.get(type);
-                if (matchedSpans.containsKey(currentMarker.position)) {
-                    Marker existMarker = matchedSpans.get(currentMarker.position);
-                    if (currentMarker.score > existMarker.score || (currentMarker.score == existMarker.score && currentMarker.width > existMarker.width)) {
-                        matchedSpans.put(currentMarker.position, currentMarker);
+                currentSpanList = matches.get(key);
+                IntervalST<Float> overlapChecker = overlapCheckers.get(key);
+                Float overlappedPos = overlapChecker.get(new Interval1D(currentSpan.begin, currentSpan.end - 1));
+                if (overlappedPos != null) {
+                    Marker overlappedSpan = currentSpanList.get(overlappedPos);
+                    if (logger.isLoggable(Level.FINEST))
+                        logger.finest("\t\tOverlapped with: " + overlappedSpan.fbegin + ", " + overlappedSpan.fend + "\t" +
+                                text.substring(overlappedSpan.getBegin() - offset, overlappedSpan.getEnd() - offset));
+                    if (!compareSpan(currentSpan, overlappedSpan)) {
+                        if (logger.isLoggable(Level.FINEST))
+                            logger.finest("\t\tSkip this span ...");
+                        continue;
                     }
+                    currentSpanList.put(currentSpan.fbegin, currentSpan);
+                    overlapChecker.remove(new Interval1D(currentSpan.getBegin(), currentSpan.getEnd()));
+                    overlapChecker.put(new Interval1D(currentSpan.getBegin(), currentSpan.getEnd()), currentSpan.fbegin);
                 } else {
-                    matchedSpans.put(currentMarker.position, currentMarker);
+                    overlapChecker.put(new Interval1D(currentSpan.getBegin(), currentSpan.getEnd()), currentSpan.fbegin);
+                    currentSpanList.put(currentSpan.fbegin, currentSpan);
                 }
             } else {
-                matchedSpans.put(currentMarker.position, currentMarker);
-                matches.put(type, matchedSpans);
+                currentSpanList.put(currentSpan.fbegin, currentSpan);
+                matches.put((String) key, currentSpanList);
+                IntervalST<Float> overlapChecker = new IntervalST<>();
+                overlapChecker.put(new Interval1D(currentSpan.getBegin(), currentSpan.getEnd()), currentSpan.fbegin);
+                overlapCheckers.put((String) key, overlapChecker);
             }
         }
+
     }
 
 

@@ -64,7 +64,7 @@ public class TestRuSHCN {
         for(Map.Entry<String,ArrayList<Marker>>entry:res.entrySet()){
             System.out.println(entry.getKey()+"\n"+entry.getValue());
             for(Marker span:entry.getValue()){
-                System.out.println(span.getPosition()+"--"+span.type);
+                System.out.println(span.getBegin()+"--"+span.type);
             }
         }
     }
@@ -73,8 +73,8 @@ public class TestRuSHCN {
     public void testTokenizer(){
         String input="患者血压123/88mmHg，呼吸3.0次/分。";
         String rule="@cn\n" +
-//                "\\b(\\a\t0\tstbegin\n" +
-//                "\\a\\e\t2\tstend\n" +
+                "\\b(\\a\t0\tstbegin\n" +
+                "\\a\\e\t2\tstend\n" +
                 "\\C\t0\ttobegin\n" +
                 "\\C\t2\ttoend\n" +
                 "\\d+\t0\ttobegin\n" +
