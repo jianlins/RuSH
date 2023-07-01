@@ -7,7 +7,7 @@
     <artifactId>rush</artifactId>
     <version>1.4.0.0-SNAPSHOT</version>
     <properties>
-        <fastner.version>1.4.0.0-SNAPSHOT</fastner.version>
+        <fastner.version>1.4.1.5-jdk1.8</fastner.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.version>1.3.50</kotlin.version>
     </properties>
@@ -215,6 +215,14 @@
             <artifactId>fastner</artifactId>
             <version>${fastner.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>edu.utah.bmi.nlp</groupId>
+            <artifactId>nlp-core</artifactId>
+            <version>1.4.1.5-jdk1.8</version>
+        </dependency>
+
+
         <dependency>
             <groupId>com.github.cbismuth</groupId>
             <artifactId>junit-repeat-rule</artifactId>
